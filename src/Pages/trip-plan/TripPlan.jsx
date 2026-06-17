@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import img5 from "../../assets/img5.jpg";
 import iconlogo from "../../assets/logo.png";
-import { plansService, countryService } from "../../services/api";
+import { countryService, plansService } from "../../services/api";
 
 export default function TripPlanPage({ userId, planId, countryName }) {
   // 📊 State Management
@@ -179,7 +179,7 @@ export default function TripPlanPage({ userId, planId, countryName }) {
   };
 
   const handleRemoveNote = async (index) => {
-    const noteToRemove = notes[index];
+    // const noteToRemove = notes[index];
     
     // ✅ Optimistic UI Update
     const newNotes = notes.filter((_, i) => i !== index);

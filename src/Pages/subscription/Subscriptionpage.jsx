@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { createPaymentSession } from "../api/paymentApi";
-import toast from "react-hot-toast";
 import {
-  ShieldCheckIcon,
   ArrowPathIcon,
-  DevicePhoneMobileIcon,
-  MinusIcon,
-  SparklesIcon,
-  CalendarDaysIcon,
   ArrowRightIcon,
+  CalendarDaysIcon,
+  DevicePhoneMobileIcon,
   MapPinIcon,
+  MinusIcon,
+  ShieldCheckIcon,
+  SparklesIcon,
 } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as CheckCircleSolid } from "@heroicons/react/24/solid";
-import heropic from "../assets/aboutUs.png";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { createPaymentSession } from "../../api/paymentApi";
+import heropic from "../assets/aboutUs.png";
 
 const accent = "#e8472a";
 const dark = "#1a3c34";
@@ -549,7 +549,7 @@ export default function SubscriptionPage() {
 
         {/* 🛡️ Trust Bar */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          {trustItems.map(({ Icon, title, desc }, i) => (
+          {trustItems.map(({  title, desc }, i) => (
             <div
               key={title}
               data-aos="zoom-in-up"

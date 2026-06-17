@@ -1,40 +1,11 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Outlet,
-  Navigate,
-} from "react-router-dom";
-
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { Toaster } from "react-hot-toast";
 
 import AOS from "aos";
 import "aos/dist/aos.css";
 
-import Signup from "./Pages/Signup/Signup";
-import Login from "./Pages/Login/Login";
-import Home from "./Pages/Home/Home";
-import Profile from "./Pages/Profile/Profile";
-import TripPlan from "./Pages/Trip plan/Trip plan";
-import Country from "./Pages/Country/Country";
-import Subscription from "./Pages/Subscriptionpage";
-
-import Navbar from "./Components/Navbar";
-
-function Layout() {
-  return (
-    <>
-      <div className="fixed top-0 left-0 w-full z-50 bg-white shadow-sm">
-        <Navbar />
-      </div>
-
-      <main className="pt-14">
-        <Outlet />
-      </main>
-    </>
-  );
-}
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "./utils/routes";
 
 export default function App() {
   useEffect(() => {
@@ -42,7 +13,7 @@ export default function App() {
   }, []);
 
   return (
-    <Router>
+    <BrowserRouter>
       <Toaster
         position="top-right"
         reverseOrder={false}
@@ -70,24 +41,9 @@ export default function App() {
         }}
       />
 
-      <Routes>
-        {/* Home أول صفحة */}
-        <Route path="/" element={<Navigate to="/home" replace />} />
-
-        {/* Authentication */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-
-        <Route element={<Layout />}>
-          <Route path="/home" element={<Home />} />
-          <Route path="/trip-plan" element={<TripPlan />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/country/:countryName" element={<Country />} />
-          <Route path="/subscription" element={<Subscription />} />
-        </Route>
-
-        <Route path="*" element={<Navigate to="/home" replace />} />
-      </Routes>
-    </Router>
+      <Suspense fallback={<div />}>
+        <AppRoutes />
+      </Suspense>
+    </BrowserRouter>
   );
 }

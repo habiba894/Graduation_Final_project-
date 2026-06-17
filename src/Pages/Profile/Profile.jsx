@@ -1,4 +1,4 @@
- import React, { useState } from "react";
+import { useState } from "react";
 
 export default function ProfilePage() {
   const [favorites, setFavorites] = useState([1, 3]);
@@ -70,7 +70,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-[#f8f8f8]">
       {/* تم إزالة مكون Navbar من هنا */}
-      
+
       <ProfileHero />
 
       <main className="max-w-7xl mx-auto px-6 py-10">
@@ -104,7 +104,7 @@ export default function ProfilePage() {
     </div>
   );
 }
- function ProfileHero() {
+function ProfileHero() {
   return (
     <div className="relative h-[500px] overflow-hidden">
       <img
@@ -198,7 +198,7 @@ function TripCard({ trip }) {
     </div>
   );
 }
- function FavoriteCard({ place, isFavorite, onToggleFavorite }) {
+function FavoriteCard({ place, isFavorite, onToggleFavorite }) {
   return (
     <div className="bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition">
       <div className="relative">

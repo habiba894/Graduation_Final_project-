@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
-import Hero from "./Hero";
-import Destinations from "./Destinations";
-import CTA from "./CTA";
-import Footer from "./Footer";
+import { useEffect, useState } from "react";
 import Aboutus from "./Aboutus";
+import CTA from "./CTA";
+import Destinations from "./Destinations";
+import Footer from "./Footer";
+import Hero from "./Hero";
 const Home = () => {
   const countries = ["egypt", "france", "turkey"];
-  const [currentCountry, setCurrentCountry] = useState(countries[0]);
+  const [setCurrentCountry] = useState(countries[0]);
 
   useEffect(() => {
     let index = 0;

@@ -1,19 +1,12 @@
-import React, { useState, useEffect } from "react";
-import pyramids from "../../assets/signin.jpg";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import { useFormik } from "formik";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { FaArrowRight, FaEnvelope, FaExclamationCircle, FaEye, FaEyeSlash, FaGoogle, FaLock, FaSpinner } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
 import * as yup from "yup";
-import {
-  FaGoogle,
-  FaEnvelope,
-  FaLock,
-  FaArrowRight,
-  FaSpinner,
-  FaExclamationCircle,
-} from "react-icons/fa";
+import pyramids from "../../assets/signin.jpg";
 import { countryService } from "../../services/api"; // ✅ استدعاء الـ API
+import RoutesList from "../../utils/routesList";
 
 // Validation Schema
 const validationSchema = yup.object({
@@ -71,14 +64,14 @@ const Login = () => {
 
         // ✅ توجهي للصفحة الرئيسية
         navigate("/home");
-        
+
       } catch (err) {
         // ❌ اعرضي رسالة الخطأ من الـ API
-        const message = err.response?.data?.message || 
-                       err.message || 
-                       "Login failed. Please check your credentials.";
+        const message = err.response?.data?.message ||
+          err.message ||
+          "Login failed. Please check your credentials.";
         setApiError(message);
-        
+
         // هز الفورم كأنه "غلطة" 🎭
         const form = document.querySelector("form");
         if (form) {
@@ -135,7 +128,7 @@ const Login = () => {
 
       {/* المحتوى الرئيسي */}
       <div className="flex w-full max-w-6xl bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden relative z-10">
-        
+
         {/* الجانب الأيسر: الصورة */}
         <motion.div className="hidden lg:block lg:w-1/2 relative" initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
           <div className="absolute inset-0 overflow-hidden rounded-l-3xl">
@@ -161,7 +154,7 @@ const Login = () => {
             </motion.div>
 
             <form onSubmit={formik.handleSubmit} className="space-y-6">
-              
+
               {/* ✅ رسالة خطأ من الـ API */}
               <AnimatePresence>
                 {apiError && (
@@ -246,7 +239,12 @@ const Login = () => {
             {/* Sign Up Link */}
             <motion.p variants={itemVariants} className="pt-6 text-center text-sm text-gray-500">
               Don't have an account?{" "}
-              <a href="#" className="text-orange-600 font-bold hover:text-orange-700">Sign Up</a>
+              <Link
+                to={RoutesList.Signup}
+                className="text-orange-600 font-bold hover:text-orange-700 transition-colors"
+              >
+                Sign Up
+              </Link>
             </motion.p>
           </motion.div>
         </div>

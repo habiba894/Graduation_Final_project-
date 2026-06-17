@@ -1,21 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import signup from "../../assets/sign up.jpg";
-import logo from "../../assets/logo.png";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useFormik } from "formik";
-import * as yup from "yup";
-import {
-  FaGoogle,
-  FaEnvelope,
-  FaLock,
-  FaArrowRight,
-  FaSpinner,
-  FaUser,
-  FaCheck,
-} from "react-icons/fa";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { useFormik } from "formik";
+import { useEffect, useState } from "react";
+import {
+  FaArrowRight, FaCheck, FaEnvelope, FaEye, FaEyeSlash, FaGoogle, FaLock, FaSpinner,
+  FaUser
+} from "react-icons/fa";
+import { Link } from "react-router-dom";
+import * as yup from "yup";
+import signup from "../../assets/sign up.jpg";
+import RoutesList from "../../utils/routesList";
 
 // Validation Schema
 const validationSchema = yup.object({
@@ -101,9 +95,9 @@ const Signup = () => {
     return "Strong";
   };
 
-  const getStrengthWidth = () => {
-    return `${(passwordStrength / 6) * 100}%`;
-  };
+  // const getStrengthWidth = () => {
+  //   return `${(passwordStrength / 6) * 100}%`;
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-gray-100 flex items-center justify-center p-4">
@@ -161,11 +155,10 @@ const Signup = () => {
                       value={formik.values.firstName}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      className={`w-full pl-12 pr-4 py-3 bg-gray-100 border-2 ${
-                        formik.touched.firstName && formik.errors.firstName
+                      className={`w-full pl-12 pr-4 py-3 bg-gray-100 border-2 ${formik.touched.firstName && formik.errors.firstName
                           ? "border-red-400"
                           : "border-transparent focus:border-orange-500"
-                      } rounded-xl focus:outline-none focus:bg-white transition-all duration-300 placeholder-gray-400 text-sm`}
+                        } rounded-xl focus:outline-none focus:bg-white transition-all duration-300 placeholder-gray-400 text-sm`}
                       placeholder="first name"
                     />
                   </div>
@@ -190,11 +183,10 @@ const Signup = () => {
                       value={formik.values.lastName}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      className={`w-full pl-12 pr-4 py-3 bg-gray-100 border-2 ${
-                        formik.touched.lastName && formik.errors.lastName
+                      className={`w-full pl-12 pr-4 py-3 bg-gray-100 border-2 ${formik.touched.lastName && formik.errors.lastName
                           ? "border-red-400"
                           : "border-transparent focus:border-orange-500"
-                      } rounded-xl focus:outline-none focus:bg-white transition-all duration-300 placeholder-gray-400 text-sm`}
+                        } rounded-xl focus:outline-none focus:bg-white transition-all duration-300 placeholder-gray-400 text-sm`}
                       placeholder="last name"
                     />
                   </div>
@@ -221,11 +213,10 @@ const Signup = () => {
                     value={formik.values.email}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    className={`w-full pl-12 pr-4 py-3 bg-gray-100 border-2 ${
-                      formik.touched.email && formik.errors.email
+                    className={`w-full pl-12 pr-4 py-3 bg-gray-100 border-2 ${formik.touched.email && formik.errors.email
                         ? "border-red-400"
                         : "border-transparent focus:border-orange-500"
-                    } rounded-xl focus:outline-none focus:bg-white transition-all duration-300 placeholder-gray-400 text-sm`}
+                      } rounded-xl focus:outline-none focus:bg-white transition-all duration-300 placeholder-gray-400 text-sm`}
                     placeholder="Enter your email"
                   />
                 </div>
@@ -251,11 +242,10 @@ const Signup = () => {
                     value={formik.values.password}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    className={`w-full pl-12 pr-12 py-3 bg-gray-100 border-2 ${
-                      formik.touched.password && formik.errors.password
+                    className={`w-full pl-12 pr-12 py-3 bg-gray-100 border-2 ${formik.touched.password && formik.errors.password
                         ? "border-red-400"
                         : "border-transparent focus:border-orange-500"
-                    } rounded-xl focus:outline-none focus:bg-white transition-all duration-300 placeholder-gray-400 text-sm`}
+                      } rounded-xl focus:outline-none focus:bg-white transition-all duration-300 placeholder-gray-400 text-sm`}
                     placeholder="••••••••"
                   />
                   <button
@@ -274,22 +264,20 @@ const Signup = () => {
                       {[1, 2, 3, 4, 5, 6].map((level) => (
                         <div
                           key={level}
-                          className={`flex-1 rounded-full transition-all duration-500 ${
-                            passwordStrength >= level
+                          className={`flex-1 rounded-full transition-all duration-500 ${passwordStrength >= level
                               ? getStrengthColor()
                               : "bg-gray-200"
-                          }`}
+                            }`}
                         />
                       ))}
                     </div>
                     <p
-                      className={`text-xs font-bold text-right ${
-                        passwordStrength <= 2
+                      className={`text-xs font-bold text-right ${passwordStrength <= 2
                           ? "text-red-500"
                           : passwordStrength <= 4
                             ? "text-amber-500"
                             : "text-green-500"
-                      }`}
+                        }`}
                     >
                       {getStrengthText()} PASSWORD
                     </p>
@@ -318,15 +306,14 @@ const Signup = () => {
                     value={formik.values.confirmPassword}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    className={`w-full pl-12 pr-12 py-3 bg-gray-100 border-2 ${
-                      formik.touched.confirmPassword &&
-                      formik.errors.confirmPassword
+                    className={`w-full pl-12 pr-12 py-3 bg-gray-100 border-2 ${formik.touched.confirmPassword &&
+                        formik.errors.confirmPassword
                         ? "border-red-400"
                         : formik.values.confirmPassword &&
-                            !formik.errors.confirmPassword
+                          !formik.errors.confirmPassword
                           ? "border-green-500"
                           : "border-transparent focus:border-orange-500"
-                    } rounded-xl focus:outline-none focus:bg-white transition-all duration-300 placeholder-gray-400 text-sm`}
+                      } rounded-xl focus:outline-none focus:bg-white transition-all duration-300 placeholder-gray-400 text-sm`}
                     placeholder="••••••••"
                   />
                   <button
@@ -410,7 +397,7 @@ const Signup = () => {
             >
               Already have an account?{" "}
               <Link
-                to="/signin"
+                to={RoutesList.Login}
                 className="text-orange-600 font-bold hover:text-orange-700 transition-colors"
               >
                 Sign In
