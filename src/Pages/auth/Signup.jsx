@@ -1,14 +1,19 @@
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useFormik } from "formik";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
-  FaArrowRight, FaCheck, FaEnvelope, FaEye, FaEyeSlash, FaGoogle, FaLock, FaSpinner,
+  FaArrowRight, FaCheck, FaEnvelope,
+  FaExclamationCircle,
+  FaEye, FaEyeSlash, FaGoogle, FaLock, FaSpinner,
   FaUser
 } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import * as yup from "yup";
-import signup from "../../assets/sign up.jpg";
+import signup from "../../assets/auth/sign-up.jpg";
+import { useAuth } from "../../context/AuthContext";
+import { apiServices } from "../../services/api";
 import RoutesList from "../../utils/routesList";
 
 // Validation Schema
@@ -42,6 +47,9 @@ const Signup = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [apiError, setApiError] = useState("");
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   useEffect(() => {
     // Initialize AOS
@@ -55,18 +63,49 @@ const Signup = () => {
 
   const formik = useFormik({
     initialValues: {
-      firstName: "",
-      lastName: "",
       email: "",
       password: "",
+      lastName: "",
+      firstName: "",
       confirmPassword: "",
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       setIsLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Form Data:", values);
-      setIsLoading(false);
+      setApiError("");
+      try {
+        const res = await apiServices.register({
+          email: values.email,
+          password: values.password,
+          lastName: values.lastName,
+          firstName: values.firstName,
+          confirmPassword: values.confirmPassword
+        });
+
+        // Save token & user, redirect to Home
+        const { accessToken, user } = res.data;
+        login(accessToken, user);
+        navigate("/home");
+
+      } catch (err) {
+        const message = err.response?.data?.message ||
+          err.message ||
+          "Registration failed. Please check your information.";
+        setApiError(message);
+
+        // Shake the form on error
+        const form = document.querySelector("form");
+        if (form) {
+          form.animate([
+            { transform: "translateX(0)" },
+            { transform: "translateX(-10px)" },
+            { transform: "translateX(10px)" },
+            { transform: "translateX(0)" },
+          ], { duration: 200 });
+        }
+      } finally {
+        setIsLoading(false);
+      }
     },
   });
 
@@ -134,7 +173,22 @@ const Signup = () => {
               </p>
             </div>
 
-            <form onSubmit={formik.handleSubmit} className="space-y-5">
+            <form onSubmit={formik.handleSubmit} className="space-y-5" >
+              {/* ✅ API Error Message */}
+              <AnimatePresence>
+                {apiError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-3 text-red-700"
+                  >
+                    <FaExclamationCircle className="text-lg flex-shrink-0" />
+                    <span className="text-sm">{apiError}</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* First Name & Last Name */}
               <div
                 className="grid grid-cols-2 gap-4"
@@ -156,8 +210,8 @@ const Signup = () => {
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                       className={`w-full pl-12 pr-4 py-3 bg-gray-100 border-2 ${formik.touched.firstName && formik.errors.firstName
-                          ? "border-red-400"
-                          : "border-transparent focus:border-orange-500"
+                        ? "border-red-400"
+                        : "border-transparent focus:border-orange-500"
                         } rounded-xl focus:outline-none focus:bg-white transition-all duration-300 placeholder-gray-400 text-sm`}
                       placeholder="first name"
                     />
@@ -180,12 +234,13 @@ const Signup = () => {
                     <input
                       type="text"
                       name="lastName"
+                      feedback={false} toggleMask={false}
                       value={formik.values.lastName}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                       className={`w-full pl-12 pr-4 py-3 bg-gray-100 border-2 ${formik.touched.lastName && formik.errors.lastName
-                          ? "border-red-400"
-                          : "border-transparent focus:border-orange-500"
+                        ? "border-red-400"
+                        : "border-transparent focus:border-orange-500"
                         } rounded-xl focus:outline-none focus:bg-white transition-all duration-300 placeholder-gray-400 text-sm`}
                       placeholder="last name"
                     />
@@ -214,8 +269,8 @@ const Signup = () => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     className={`w-full pl-12 pr-4 py-3 bg-gray-100 border-2 ${formik.touched.email && formik.errors.email
-                        ? "border-red-400"
-                        : "border-transparent focus:border-orange-500"
+                      ? "border-red-400"
+                      : "border-transparent focus:border-orange-500"
                       } rounded-xl focus:outline-none focus:bg-white transition-all duration-300 placeholder-gray-400 text-sm`}
                     placeholder="Enter your email"
                   />
@@ -243,8 +298,8 @@ const Signup = () => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     className={`w-full pl-12 pr-12 py-3 bg-gray-100 border-2 ${formik.touched.password && formik.errors.password
-                        ? "border-red-400"
-                        : "border-transparent focus:border-orange-500"
+                      ? "border-red-400"
+                      : "border-transparent focus:border-orange-500"
                       } rounded-xl focus:outline-none focus:bg-white transition-all duration-300 placeholder-gray-400 text-sm`}
                     placeholder="••••••••"
                   />
@@ -265,18 +320,18 @@ const Signup = () => {
                         <div
                           key={level}
                           className={`flex-1 rounded-full transition-all duration-500 ${passwordStrength >= level
-                              ? getStrengthColor()
-                              : "bg-gray-200"
+                            ? getStrengthColor()
+                            : "bg-gray-200"
                             }`}
                         />
                       ))}
                     </div>
                     <p
                       className={`text-xs font-bold text-right ${passwordStrength <= 2
-                          ? "text-red-500"
-                          : passwordStrength <= 4
-                            ? "text-amber-500"
-                            : "text-green-500"
+                        ? "text-red-500"
+                        : passwordStrength <= 4
+                          ? "text-amber-500"
+                          : "text-green-500"
                         }`}
                     >
                       {getStrengthText()} PASSWORD
@@ -307,12 +362,12 @@ const Signup = () => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     className={`w-full pl-12 pr-12 py-3 bg-gray-100 border-2 ${formik.touched.confirmPassword &&
-                        formik.errors.confirmPassword
-                        ? "border-red-400"
-                        : formik.values.confirmPassword &&
-                          !formik.errors.confirmPassword
-                          ? "border-green-500"
-                          : "border-transparent focus:border-orange-500"
+                      formik.errors.confirmPassword
+                      ? "border-red-400"
+                      : formik.values.confirmPassword &&
+                        !formik.errors.confirmPassword
+                        ? "border-green-500"
+                        : "border-transparent focus:border-orange-500"
                       } rounded-xl focus:outline-none focus:bg-white transition-all duration-300 placeholder-gray-400 text-sm`}
                     placeholder="••••••••"
                   />

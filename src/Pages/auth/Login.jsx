@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { FaArrowRight, FaEnvelope, FaExclamationCircle, FaEye, FaEyeSlash, FaGoogle, FaLock, FaSpinner } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import * as yup from "yup";
-import pyramids from "../../assets/signin.jpg";
+import pyramids from "../../assets/auth/signin.jpg";
+import { useAuth } from "../../context/AuthContext";
 import { apiServices } from "../../services/api"; // ✅ استدعاء الـ API
 import RoutesList from "../../utils/routesList";
 
@@ -25,6 +26,7 @@ const validationSchema = yup.object({
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -57,10 +59,9 @@ const Login = () => {
           password: values.password,
         });
 
-        // ✅ احفظي التوكن واليوزر
+        // ✅ احفظي التوكن واليوزر في الكونتكست
         const { accessToken, user } = res.data;
-        localStorage.setItem("token", accessToken);
-        localStorage.setItem("user", JSON.stringify(user));
+        login(accessToken, user);
 
         // ✅ توجهي للصفحة الرئيسية
         navigate("/home");
@@ -132,7 +133,7 @@ const Login = () => {
         {/* الجانب الأيسر: الصورة */}
         <motion.div className="hidden lg:block lg:w-1/2 relative" initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
           <div className="absolute inset-0 overflow-hidden rounded-l-3xl">
-            <img src={pyramids} alt="Pyramids" className="w-full h-full object-cover object-center" loading="lazy"/>
+            <img src={pyramids} alt="Pyramids" className="w-full h-full object-cover object-center" loading="lazy" />
             <div className="absolute inset-0 bg-gradient-to-br from-orange-600/40 via-amber-600/30 to-transparent" />
             <div className="absolute inset-0 flex flex-col justify-center items-start px-12 text-white text-left">
               <motion.h2 initial={{ x: -30, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.4, duration: 0.8 }} className="text-3xl drop-shadow-lg tracking-wide font-bold">Discover Egypt</motion.h2>
