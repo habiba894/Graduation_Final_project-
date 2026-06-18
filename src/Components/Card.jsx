@@ -1,4 +1,3 @@
-import React from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
@@ -10,7 +9,7 @@ const Card = ({ image, title, description, rating, price }) => {
     <div className="w-[300px] bg-white rounded-2xl shadow-sm overflow-hidden "data-aos="zoom-in">
       {/* Image */}
       <div className="h-[180px] w-full overflow-hidden">
-        <img src={image} alt={title} className="w-full h-full object-cover" />
+        <img src={image} alt={title} className="w-full h-full object-cover" loading="lazy" />
       </div>
 
       {/* Content */}

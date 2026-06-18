@@ -52,15 +52,15 @@ const Navbar = () => {
             Home
           </Link>
 
-          {/* 🌍 Countries */}
+          {/* 🌍 Countries
           <Link to={RoutesList.Country} className="text-black hover:text-[#d14b30] transition cursor-pointer">
             Countries
-          </Link>
+          </Link> */}
 
-          {/* 🗓️ Trip Plan */}
+          {/* 🗓️ Trip Plan
           <Link to={RoutesList.TripPlan} className="text-black hover:text-[#d14b30] transition cursor-pointer">
             Trip Plan
-          </Link>
+          </Link> */}
 
           {/* 👤 Profile */}
           <Link to={RoutesList.Profile} className="text-black hover:text-[#d14b30] transition cursor-pointer">
@@ -150,23 +150,23 @@ const Navbar = () => {
             🏠 Home
           </Link>
 
-          {/* 🌍 Countries - Mobile */}
+          {/* 🌍 Countries - Mobile
           <Link
             to={RoutesList.Country}
             onClick={() => setOpen(false)}
             className="text-black hover:text-[#d14b30] transition cursor-pointer font-semibold"
           >
             🌍 Countries
-          </Link>
+          </Link> */}
 
-          {/* 🗓️ Trip Plan - Mobile */}
+          {/* 🗓️ Trip Plan - Mobile
           <Link
             to={RoutesList.TripPlan}
             onClick={() => setOpen(false)}
             className="text-black hover:text-[#d14b30] transition cursor-pointer font-semibold"
           >
             🗓️ Trip Plan
-          </Link>
+          </Link> */}
 
           {/* 👤 Profile - Mobile */}
           <Link

@@ -155,6 +155,7 @@ export default function SubscriptionPage() {
         }}
       >
         <img
+          loading="lazy"
           src={heropic}
           alt="WanderLust travel"
           className="absolute inset-0 w-full h-full object-cover object-center"
@@ -587,6 +588,7 @@ export default function SubscriptionPage() {
         style={{ minHeight: "400px" }}
       >
         <img
+          loading="lazy"
           src={heropic}
           alt="Explore more"
           className="absolute inset-0 w-full h-full object-cover object-center"
