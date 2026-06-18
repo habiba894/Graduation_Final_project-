@@ -1,9 +1,9 @@
-import { useEffect, useState, useRef } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { useEffect, useRef, useState } from "react";
 
-import img1 from "../../assets/pyramidhome.jpg";
 import img2 from "../../assets/paris home.avif";
+import img1 from "../../assets/pyramidhome.jpg";
 import img3 from "../../assets/turky.jpg";
 
 import { useNavigate } from "react-router-dom";
@@ -134,7 +134,7 @@ const Hero = () => {
       {/* content */}
       <div
         key={current}
-        className="relative z-30 max-w-full md:max-w-[700px]"
+        className="relative z-30 max-w-full md:max-w-175"
       >
         <h1
           data-aos="fade-up"

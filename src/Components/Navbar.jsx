@@ -1,11 +1,12 @@
-import iconlogo from "../assets/plane.png";
 import crown from "../assets/crown.png";
+import iconlogo from "../assets/plane.png";
 
 import AOS from "aos";
 import "aos/dist/aos.css";
 
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import RoutesList from "../utils/routesList";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -27,7 +28,7 @@ const Navbar = () => {
       <div className="flex justify-between items-center w-full px-4 md:px-10 py-3 bg-white sticky top-0 z-50 shadow-sm">
         
         {/* 🪙 LOGO */}
-        <Link to="/home">
+        <Link to={RoutesList.Home}>
           <div className="logo flex items-center gap-2 relative cursor-pointer">
             <p className="text-black text-lg md:text-2xl font-bold">
               Wander
@@ -47,26 +48,26 @@ const Navbar = () => {
         {/* 🖥️ DESKTOP NAV */}
         <div className="hidden md:flex items-center gap-8 font-semibold">
 
-          <Link to="/home" className={activeLink("/home")}>
+          <Link to={RoutesList.Home} className={activeLink(RoutesList.Home)}>
             Home
           </Link>
 
           {/* 🌍 Countries */}
-          <Link to="/country" className="text-black hover:text-[#d14b30] transition cursor-pointer">
+          <Link to={RoutesList.Country} className="text-black hover:text-[#d14b30] transition cursor-pointer">
             Countries
           </Link>
 
           {/* 🗓️ Trip Plan */}
-          <Link to="/trip-plan" className="text-black hover:text-[#d14b30] transition cursor-pointer">
+          <Link to={RoutesList.TripPlan} className="text-black hover:text-[#d14b30] transition cursor-pointer">
             Trip Plan
           </Link>
 
           {/* 👤 Profile */}
-          <Link to="/profile" className="text-black hover:text-[#d14b30] transition cursor-pointer">
+          <Link to={RoutesList.Profile} className="text-black hover:text-[#d14b30] transition cursor-pointer">
             Profile
           </Link>
 
-          <Link to="/subscription" className={activeLink("/subscription")}>
+          <Link to={RoutesList.Subscription} className={activeLink(RoutesList.Subscription)}>
             Subscription
           </Link>
 
@@ -79,13 +80,13 @@ const Navbar = () => {
 
         {/* 🔘 DESKTOP AUTH BUTTONS */}
         <div className="hidden md:flex gap-3">
-          <Link to="/">
+          <Link to={RoutesList.Login}>
             <button className="text-black px-4 py-1.5 rounded-full font-semibold hover:text-[#d14b30] transition">
               Login
             </button>
           </Link>
 
-          <Link to="/signup">
+          <Link to={RoutesList.Signup}>
             <button className="bg-[#d14b30] px-5 py-1.5 rounded-full text-white hover:scale-105 transition shadow-md">
               Sign Up
             </button>
@@ -142,7 +143,7 @@ const Navbar = () => {
         {/* Mobile Links */}
         <nav className="flex flex-col gap-4">
           <Link
-            to="/home"
+            to={RoutesList.Home}
             onClick={() => setOpen(false)}
             className={activeLink("/home")}
           >
@@ -151,7 +152,7 @@ const Navbar = () => {
 
           {/* 🌍 Countries - Mobile */}
           <Link
-            to="/country"
+            to={RoutesList.Country}
             onClick={() => setOpen(false)}
             className="text-black hover:text-[#d14b30] transition cursor-pointer font-semibold"
           >
@@ -160,7 +161,7 @@ const Navbar = () => {
 
           {/* 🗓️ Trip Plan - Mobile */}
           <Link
-            to="/trip-plan"
+            to={RoutesList.TripPlan}
             onClick={() => setOpen(false)}
             className="text-black hover:text-[#d14b30] transition cursor-pointer font-semibold"
           >
@@ -169,7 +170,7 @@ const Navbar = () => {
 
           {/* 👤 Profile - Mobile */}
           <Link
-            to="/profile"
+            to={RoutesList.Profile}
             onClick={() => setOpen(false)}
             className="text-black hover:text-[#d14b30] transition cursor-pointer font-semibold"
           >
@@ -177,9 +178,9 @@ const Navbar = () => {
           </Link>
 
           <Link
-            to="/subscription"
+            to={RoutesList.Subscription}
             onClick={() => setOpen(false)}
-            className={activeLink("/subscription")}
+            className={activeLink(RoutesList.Subscription)}
           >
             💳 Subscription
           </Link>
@@ -193,13 +194,13 @@ const Navbar = () => {
 
         {/* Mobile Auth Buttons */}
         <div className="mt-auto flex flex-col gap-3">
-          <Link to="/" onClick={() => setOpen(false)}>
+          <Link to={RoutesList.Login} onClick={() => setOpen(false)}>
             <button className="w-full text-black px-4 py-2.5 rounded-full font-semibold border border-gray-200 hover:bg-gray-50 transition">
               Login
             </button>
           </Link>
 
-          <Link to="/signup" onClick={() => setOpen(false)}>
+          <Link to={RoutesList.Signup} onClick={() => setOpen(false)}>
             <button className="w-full bg-[#d14b30] px-5 py-2.5 rounded-full text-white font-semibold hover:scale-[1.02] transition shadow-md">
               Sign Up
             </button>

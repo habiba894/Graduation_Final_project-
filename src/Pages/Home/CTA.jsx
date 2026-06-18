@@ -15,7 +15,7 @@ const CTA = () => {
     >
       <div className="max-w-5xl mx-auto px-4 md:px-6 lg:px-8">
         
-        <div className="p-6 md:p-12 lg:p-16 rounded-2xl text-white bg-gradient-to-r from-[#EE5E44] to-[#1B6D7E] text-center">
+        <div className="p-6 md:p-12 lg:p-16 rounded-2xl text-white bg-linear-to-r from-[#EE5E44] to-[#1B6D7E] text-center">
           
           {/* TITLE */}
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">

@@ -1,20 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { createPaymentSession } from "../api/paymentApi";
-import toast from "react-hot-toast";
 import {
-  ShieldCheckIcon,
-  ArrowPathIcon,
-  DevicePhoneMobileIcon,
-  MinusIcon,
-  SparklesIcon,
-  CalendarDaysIcon,
   ArrowRightIcon,
+  CalendarDaysIcon,
   MapPinIcon,
+  MinusIcon,
+  SparklesIcon
 } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as CheckCircleSolid } from "@heroicons/react/24/solid";
-import heropic from "../assets/aboutUs.png";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { CalendarX2, Headset, ShieldCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { createPaymentSession } from "../../api/paymentApi";
+import heropic from "../../assets/aboutUs.png";
 
 const accent = "#e8472a";
 const dark = "#1a3c34";
@@ -36,17 +34,17 @@ const compareRows = [
 
 const trustItems = [
   {
-    Icon: ShieldCheckIcon,
+    icon: <ShieldCheck className="w-5 h-5" style={{ color: accent }} />,
     title: "Secure Payment",
     desc: "Your payment is safe with us.",
   },
   {
-    Icon: ArrowPathIcon,
+    icon: <CalendarX2 className="w-5 h-5" style={{ color: accent }} />,
     title: "Cancel Anytime",
     desc: "Change or cancel your plan at any time.",
   },
   {
-    Icon: DevicePhoneMobileIcon,
+    icon: <Headset className="w-5 h-5" style={{ color: accent }} />,
     title: "24 / 7 Support",
     desc: "We are here to help you anytime.",
   },
@@ -287,10 +285,10 @@ export default function SubscriptionPage() {
                 style={
                   billing === b
                     ? {
-                        backgroundColor: "#fff",
-                        color: dark,
-                        boxShadow: "0 2px 10px rgba(0,0,0,0.10)",
-                      }
+                      backgroundColor: "#fff",
+                      color: dark,
+                      boxShadow: "0 2px 10px rgba(0,0,0,0.10)",
+                    }
                     : { color: "#999" }
                 }
               >
@@ -549,7 +547,7 @@ export default function SubscriptionPage() {
 
         {/* 🛡️ Trust Bar */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          {trustItems.map(({ Icon, title, desc }, i) => (
+          {trustItems.map(({ icon, title, desc }, i) => (
             <div
               key={title}
               data-aos="zoom-in-up"
@@ -563,11 +561,8 @@ export default function SubscriptionPage() {
                   backgroundColor: "#fff5f3",
                   border: "1px solid #fdd5cc",
                 }}
-              >
-                <Icon
-                  className="w-5 h-5"
-                  style={{ color: accent }}
-                />
+              > {icon}
+
               </div>
               <div>
                 <p
