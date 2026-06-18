@@ -1,83 +1,16 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { countryService } from "../../services/api";
-import Egypt1 from "../../assets/Egypt1.jpg";
-import Egyptpopplace2 from "../../assets/Egyptpopplace2.jpg";
-import Egypt3 from "../../assets/Egypt3.jpg";
-import France2 from "../../assets/France2.jpg";
-import France3 from "../../assets/France3.jpg";
-import Turkeyy from "../../assets/Turkeyy.jpg";
-import Turkeyy2 from "../../assets/Turkeyy2.jpg";
+import { ArrowRight } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const countryData = {
-  Egypt: {
-    title: "Egypt",
-    subtitle: "Where ancient wonders meet modern magic",
-    overlay: "from-amber-900/80 via-orange-900/60 to-transparent",
-    temperature: "24°C",
-    weather: "Sunny",
-    city: "Cairo",
-    currency: "EGP",
-    highlights: ["Pyramids", "Nile Cruise", "Red Sea"],
-    images: [Egypt1, Egypt3, Egyptpopplace2],
-    topHotels: [
-      { name: "Four Seasons Nile Plaza", rating: 4.8, price: "$250/night" },
-      { name: "The St. Regis Cairo", rating: 4.9, price: "$320/night" },
-      { name: "Sofitel Legend Old Cataract", rating: 4.9, price: "$400/night" },
-    ],
-  },
-  France: {
-    title: "France",
-    subtitle: "Romance, art, and timeless elegance await",
-    overlay: "from-indigo-900/80 via-purple-900/60 to-transparent",
-    temperature: "18°C",
-    weather: "Partly Cloudy",
-    city: "Paris",
-    currency: "EUR",
-    highlights: ["Eiffel Tower", "Louvre", "French Riviera"],
-    images: [
-      "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80",
-      France2,
-      France3,
-    ],
-    topHotels: [
-      { name: "Ritz Paris", rating: 4.9, price: "$900/night" },
-      { name: "Four Seasons George V", rating: 4.8, price: "$850/night" },
-      { name: "Shangri-La Hotel", rating: 4.8, price: "$750/night" },
-    ],
-  },
-  Turkey: {
-    title: "Turkey",
-    subtitle: "A breathtaking bridge between continents",
-    overlay: "from-rose-900/80 via-pink-900/60 to-transparent",
-    temperature: "22°C",
-    weather: "Clear Sky",
-    city: "Istanbul",
-    currency: "TRY",
-    highlights: ["Bosphorus", "Cappadocia", "Grand Bazaar"],
-    images: [
-      "https://images.unsplash.com/photo-1527838832700-5059252407fa?w=1920&q=80",
-      Turkeyy,
-      Turkeyy2,
-    ],
-    topHotels: [
-      { name: "Four Seasons Bosphorus", rating: 4.9, price: "$300/night" },
-      { name: "Ciragan Palace Kempinski", rating: 4.8, price: "$450/night" },
-      { name: "The Peninsula Istanbul", rating: 4.8, price: "$380/night" },
-    ],
-  },
-};
+import countryData from "../../data/country_data";
+import { apiServices } from "../../services/api";
+import RoutesList from "../../utils/routesList";
 
-const globalSlides = [
-  { id: 0, country: "Egypt", ...countryData.Egypt, image: countryData.Egypt.images[0] },
-  { id: 1, country: "France", ...countryData.France, image: countryData.France.images[0] },
-  { id: 2, country: "Turkey", ...countryData.Turkey, image: countryData.Turkey.images[0] },
-];
-
-const HeroSectionWithCards = ({ onCountryChange, selectedCountry = null }) => {
+const HeroSectionWithCards = ({ selectedCountry }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(1);
   const [isHovered, setIsHovered] = useState(false);
-  
+
   const [countryInfoData, setCountryInfoData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showCountryInfo, setShowCountryInfo] = useState(false);
@@ -87,32 +20,29 @@ const HeroSectionWithCards = ({ onCountryChange, selectedCountry = null }) => {
   const [weatherLoading, setWeatherLoading] = useState(false);
 
   const lastFetchedCountry = useRef(null);
-
-  // ✅ 1. حذفت borderNames عشان الكود ينضف (مش مستخدمة)
+  const navigate = useNavigate();
 
   // 🔹 تحسين useMemo + إضافة تحقق للسلامة
   const slides = useMemo(() => {
-    if (selectedCountry && countryData[selectedCountry]) {
-      return countryData[selectedCountry].images.map((img, index) => ({
-        id: index,
-        country: selectedCountry,
-        title: countryData[selectedCountry].title,
-        subtitle: countryData[selectedCountry].subtitle,
-        image: img,
-        overlay: countryData[selectedCountry].overlay,
-        temperature: countryData[selectedCountry].temperature,
-        weather: countryData[selectedCountry].weather,
-        city: countryData[selectedCountry].city,
-        highlights: countryData[selectedCountry].highlights,
-      }));
-    }
-    return globalSlides;
+    return countryData[selectedCountry].images.map((img, index) => ({
+      id: index,
+      country: selectedCountry,
+      title: countryData[selectedCountry].title,
+      subtitle: countryData[selectedCountry].subtitle,
+      image: img,
+      overlay: countryData[selectedCountry].overlay,
+      temperature: countryData[selectedCountry].temperature,
+      weather: countryData[selectedCountry].weather,
+      city: countryData[selectedCountry].city,
+      highlights: countryData[selectedCountry].highlights,
+    }));
   }, [selectedCountry]);
 
-  const fetchCountryInfo = async (name) => {
+
+  const fetchCountryInfo = useCallback(async (name) => {
     try {
       setLoading(true);
-      const response = await countryService.getCountryByName(name);
+      const response = await apiServices.getCountryByName(name);
       setCountryInfoData(response.data);
       const currencyCode = response.data?.currencies ? Object.keys(response.data.currencies)[0] : null;
       const flagCode = getFlagCode(name, currencyCode);
@@ -124,12 +54,12 @@ const HeroSectionWithCards = ({ onCountryChange, selectedCountry = null }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const fetchWeather = async (countryName) => {
     try {
       setWeatherLoading(true);
-      const response = await countryService.getWeather(countryName);
+      const response = await apiServices.getWeather(countryName);
       setWeatherData({
         temperature: response.data?.temperature,
         description: response.data?.description,
@@ -148,10 +78,10 @@ const HeroSectionWithCards = ({ onCountryChange, selectedCountry = null }) => {
 
   // ✅ 2. تحسين دالة getFlagCode عشان تكون أكثر أماناً
   const getFlagCode = (name, currency) => {
-    const map = { 
-      Egypt: "eg", France: "fr", Turkey: "tr", Italy: "it", 
-      Spain: "es", Germany: "de", UK: "gb", "United States": "us", 
-      USA: "us", "United Kingdom": "gb" 
+    const map = {
+      Egypt: "eg", France: "fr", Turkey: "tr", Italy: "it",
+      Spain: "es", Germany: "de", UK: "gb", "United States": "us",
+      USA: "us", "United Kingdom": "gb"
     };
     if (map[name]) return map[name];
     if (currency) return currency.toLowerCase();
@@ -177,7 +107,7 @@ const HeroSectionWithCards = ({ onCountryChange, selectedCountry = null }) => {
       fetchCountryInfo(country);
       fetchWeather(country);
     }
-  }, [selectedCountry, currentSlide, slides]);
+  }, [selectedCountry, currentSlide, slides, fetchCountryInfo]);
 
   const nextSlide = useCallback(() => {
     setDirection(1);
@@ -188,14 +118,6 @@ const HeroSectionWithCards = ({ onCountryChange, selectedCountry = null }) => {
     setDirection(-1);
     setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
   }, [slides.length]);
-
-  // ✅ 3. تحسين onCountryChange عشان يشتغل دايماً
-  useEffect(() => {
-    if (onCountryChange) {
-      const country = selectedCountry || slides[currentSlide]?.country;
-      if (country) onCountryChange(country);
-    }
-  }, [currentSlide, onCountryChange, selectedCountry, slides]);
 
   useEffect(() => {
     if (isHovered) return;
@@ -213,15 +135,16 @@ const HeroSectionWithCards = ({ onCountryChange, selectedCountry = null }) => {
   }, [nextSlide, prevSlide]);
 
   const current = slides[currentSlide];
+  console.log(current.image)
   const prevIndex = (currentSlide - 1 + slides.length) % slides.length;
   const prevSlideData = slides[prevIndex]; // ✅ 4. تعريف متغير للسلامة
 
   // 🌤️ عرض الداتا
-  const displayTemp = weatherData && !weatherLoading 
-    ? `${Math.round(weatherData.temperature)}°C` 
+  const displayTemp = weatherData && !weatherLoading
+    ? `${Math.round(weatherData.temperature)}°C`
     : current.temperature;
-  const displayWeather = weatherData && !weatherLoading 
-    ? weatherData.description 
+  const displayWeather = weatherData && !weatherLoading
+    ? weatherData.description
     : current.weather;
   const displayCity = weatherData?.city || current.city;
 
@@ -235,17 +158,17 @@ const HeroSectionWithCards = ({ onCountryChange, selectedCountry = null }) => {
   ];
 
   return (
-    <div className="relative">
-      <section 
-        className="relative h-[700px] md:h-[850px] overflow-hidden group"
+    <div className="relative overflow-y-hidden">
+      <section
+        className="relative h-175 md:h-screen overflow-y-hidden group"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Background Layers */}
         <div className="absolute inset-0 transition-opacity duration-700 ease-out">
-          <div 
+          <div
             className="absolute inset-0 bg-cover bg-center transform scale-105"
-            style={{ 
+            style={{
               // ✅ 5. حماية من undefined باستخدام ?. و ||
               backgroundImage: `url('${prevSlideData?.image || ""}')`,
               transition: 'transform 8s ease-out'
@@ -256,13 +179,19 @@ const HeroSectionWithCards = ({ onCountryChange, selectedCountry = null }) => {
 
         {/* Current Slide */}
         <div className="absolute inset-0">
-          <div 
+          <img
+            src={current.image}
+            alt=""
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          {/* <div
             className="absolute inset-0 bg-cover bg-center transform transition-transform duration-[10000ms] ease-linear group-hover:scale-110"
-            style={{ 
+            style={{
               backgroundImage: `url('${current.image}')`,
               transform: `scale(${isHovered ? 1.1 : 1.05}) translateX(${isHovered ? (direction * 2) : 0}px)`
             }}
-          />
+          /> */}
           <div className={`absolute inset-0 bg-gradient-to-br ${current.overlay} transition-all duration-700`} />
           <div className="absolute inset-0 opacity-30">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent animate-pulse" />
@@ -274,11 +203,12 @@ const HeroSectionWithCards = ({ onCountryChange, selectedCountry = null }) => {
 
         {/* Content */}
         <div className="relative z-20 container mx-auto px-6 md:px-12 h-full flex items-center">
+          <>{current.image}</>
           <div className="max-w-3xl">
             <h1
               key={`title-${currentSlide}`}
               className="text-7xl md:text-9xl font-black mb-5 leading-none text-white drop-shadow-2xl"
-              style={{ 
+              style={{
                 fontFamily: "'Satisfy', cursive",
                 animation: 'titleReveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards',
                 textShadow: "0 10px 40px rgba(0,0,0,0.4)"
@@ -289,7 +219,7 @@ const HeroSectionWithCards = ({ onCountryChange, selectedCountry = null }) => {
             <p
               key={`subtitle-${currentSlide}`}
               className="text-2xl md:text-4xl text-white/95 mb-10 font-light leading-relaxed max-w-2xl"
-              style={{ 
+              style={{
                 fontFamily: "'Satisfy', cursive",
                 animation: 'contentReveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards',
                 opacity: 0,
@@ -337,7 +267,7 @@ const HeroSectionWithCards = ({ onCountryChange, selectedCountry = null }) => {
             </div>
 
             {/* Quick Stats */}
-            <div 
+            <div
               key={`stats-${currentSlide}`}
               className="mt-8 flex flex-wrap gap-4"
               style={{
@@ -347,13 +277,25 @@ const HeroSectionWithCards = ({ onCountryChange, selectedCountry = null }) => {
             >
               {/* ✅ 6. تحسين key في الـ map */}
               {current.highlights.map((item, i) => (
-                <span 
+                <span
                   key={`${current.country}-${i}`}
                   className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white/90 text-sm font-medium border border-white/20 hover:bg-white/20 transition-colors cursor-default"
                 >
                   {item}
                 </span>
               ))}
+
+              <button
+                onClick={() =>
+                  navigate(RoutesList.TripPlan(current.country), {
+                    state: { country: current.country, },
+                  })
+                }
+                className="flex items-center gap-2 px-6 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-semibold border border-white/30 hover:bg-white/30 hover:gap-3 transition-all duration-300"
+              >
+                Plan Your Trip
+                <ArrowRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
         </div>
@@ -373,7 +315,7 @@ const HeroSectionWithCards = ({ onCountryChange, selectedCountry = null }) => {
             <div className="absolute inset-0 bg-amber-400/0 group-hover/triangle:bg-amber-400/10 rounded-lg transition-colors duration-300" />
           </div>
         </button>
-        
+
         <button onClick={nextSlide} className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-30 group/triangle" aria-label="Next destination">
           <div className="relative w-12 h-12 md:w-14 md:h-14 flex items-center justify-center">
             <div className="absolute inset-0 flex items-center justify-center">
@@ -392,12 +334,13 @@ const HeroSectionWithCards = ({ onCountryChange, selectedCountry = null }) => {
 
       {/* Category Cards */}
       <div className="relative z-30 -mt-12 md:-mt-16 lg:-mt-20 pb-8">
+
         <div className="container mx-auto px-4 md:px-6">
           {showCountryInfo && countryInfoData && !loading && (
             // ✅ 7. تحسين الـ Grid للموبايل (إضافة sm:grid-cols-3)
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
               {countryInfoCards.map((card) => (
-                <div 
+                <div
                   key={`${card.id}-${countryCode}`} // ✅ 8. key أفضل باستخدام الدولة
                   className="bg-white rounded-2xl p-4 sm:p-5 shadow-xl transition-all duration-300 
                              hover:shadow-2xl hover:scale-105 hover:border-gray-300

@@ -1,60 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { countryService } from "../../services/api";
-import Egypthotel1 from "../../assets/Egypthotel1.jpg";
-import Egypthotel2 from "../../assets/Egypthotel2.avif";
-import Egypthotel3 from "../../assets/Egypthotel3.avif";
-import Francehotel1 from "../../assets/Francehotel1.jpg";
-import Francehotel2 from "../../assets/Francehotel2.jpg";
-import Francehotel3 from "../../assets/Francehotel3.jpg";
-import Turkeyhotel1 from "../../assets/Turkeyhotel1.jpg"; 
-import Turkeyhotel2 from "../../assets/Turkeyhotel2.jpg";
-import Turkeyhotel3 from "../../assets/Turkeyhotel3.jpg";
+import { useEffect, useState } from "react";
+import { apiServices } from "../../services/api";
 
 const defaultHotelImg = "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&auto=format&fit=crop";
 
-// 🖼️ الصور المحلية
-const hotelImages = {
-  "Four Seasons Hotel Cairo": Egypthotel1,
-  "The Nile Ritz-Carlton": Egypthotel2,
-  "Marriott Mena House": Egypthotel3,
-  "Four Seasons Hotel George V": Francehotel1,
-  "Four Seasons Hotel George V Paris": Francehotel1,
-  "Le Meurice": Francehotel2,
-  "Hotel Plaza Athénée": Francehotel3,
-  "Four Seasons Hotel Istanbul": Turkeyhotel1,
-  "Four Seasons Hotel Istanbul at Sultanahmet": Turkeyhotel1,
-  "Çırağan Palace Kempinski": Turkeyhotel2,
-  "Swissôtel The Bosphorus": Turkeyhotel3,
-};
-
-// 🔗 روابط الحجز الرسمية
-const hardcodedSocialLinks = {
-  "Four Seasons Hotel Cairo": "https://www.fourseasons.com/cairo/",
-  "The Nile Ritz-Carlton": "https://www.ritzcarlton.com/en/hotels/cairz-the-nile-ritz-carlton-cairo/overview/",
-  "Marriott Mena House": "https://www.marriott.com/en-us/hotels/caimn-marriott-mena-house-cairo/overview/",
-  "Four Seasons Hotel George V": "https://www.fourseasons.com/paris/",
-  "Four Seasons Hotel George V Paris": "https://www.fourseasons.com/paris/",
-  "Le Meurice": "https://www.dorchestercollection.com/paris/le-meurice",
-  "Hotel Plaza Athénée": "https://www.dorchestercollection.com/paris/hotel-plaza-athenee/dining",
-  "Four Seasons Hotel Istanbul": "https://www.fourseasons.com/bosphorus/",
-  "Four Seasons Hotel Istanbul at Sultanahmet": "https://www.fourseasons.com/bosphorus/",
-  "Çırağan Palace Kempinski": "https://www.kempinski.com/en/ciragan-palace",
-  "Swissôtel The Bosphorus": "https://www.swissotel.com/hotels/istanbul/",
-};
-
-// 🖼️ دالة جلب الصورة
-const getHotelImage = (hotelName, apiImage) => {
-  if (apiImage?.startsWith('http') && !apiImage.includes('example.com')) return apiImage;
-  if (hotelImages[hotelName]) return hotelImages[hotelName];
-  return defaultHotelImg;
-};
 
 // 💰 دالة تنسيق السعر الحقيقي (من الـ API)
 const formatPrice = (price) => {
   if (!price) return "";
   const str = String(price).trim();
   if (str.includes('$')) return str;
-  if (/^[\d.\-]+$/.test(str)) return `$${str}`;
+  if (/^[\d.-]+$/.test(str)) return `$${str}`;
   return "";
 };
 
@@ -62,7 +17,7 @@ const formatPrice = (price) => {
 const getPriceFromRange = (priceRange, hotelName) => {
   const ranges = {
     'Budget': [50, 100],
-    'Standard': [100, 200], 
+    'Standard': [100, 200],
     'Premium': [200, 400],
     'Luxury': [400, 800]
   };
@@ -99,9 +54,9 @@ const HotelsSection = ({ countryName = "Egypt" }) => {
   useEffect(() => {
     const fetchHotels = async () => {
       try {
-        const res = await countryService.getHotels(countryName.trim().toLowerCase());
+        const res = await apiServices.getHotels(countryName.trim().toLowerCase());
         if (!res.data?.length) throw new Error("No hotels found");
-        
+        console.log("Fetched hotels:", res.data); // ✅ Debugging log
         setHotels(res.data.map((hotel, i) => ({
           id: hotel.id || i + 1,
           name: hotel.name,
@@ -109,11 +64,11 @@ const HotelsSection = ({ countryName = "Egypt" }) => {
           rating: hotel.stars,
           price: getFinalPrice(hotel), // ✅ دالة موحدة للبرايس
           location: hotel.location,
-          website: hardcodedSocialLinks[hotel.name] || hotel.socialMediaLink || hotel.website || "#"
+          website: hotel.link
         })));
         setError(null);
       } catch (err) {
-        setError("Failed to load hotels");
+        setError(`Failed to load hotels: ${err.message}`);
         setHotels([]);
       } finally {
         setLoading(false);
@@ -129,13 +84,13 @@ const HotelsSection = ({ countryName = "Egypt" }) => {
   const toggleFavorite = (hotel) => {
     setFavorites(prev => {
       const exists = prev.some(f => f.id === hotel.id && f.name === hotel.name);
-      return exists 
+      return exists
         ? prev.filter(f => !(f.id === hotel.id && f.name === hotel.name))
         : [...prev, { id: hotel.id, name: hotel.name, country: countryName }];
     });
   };
 
-  const isFavorite = (hotel) => 
+  const isFavorite = (hotel) =>
     favorites.some(f => f.id === hotel.id && f.name === hotel.name);
 
   return (
@@ -167,24 +122,23 @@ const HotelsSection = ({ countryName = "Egypt" }) => {
         {!loading && hotels.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {hotels.map((hotel) => (
-              <div 
-                key={hotel.id} 
+              <div
+                key={hotel.id}
                 className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
-                data-aos="fade-up" 
+                data-aos="fade-up"
                 data-aos-delay={hotel.id * 100}
               >
                 <div className="relative h-64 overflow-hidden">
-                  <img 
-                    src={getHotelImage(hotel.name, hotel.image)}
-                    alt={hotel.name} 
+                  <img
+                    src={hotel.image}
+                    alt={hotel.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     onError={(e) => { e.target.src = defaultHotelImg; }}
                   />
                   <button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite(hotel); }}
-                    className={`absolute top-4 right-4 p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-200 hover:scale-110 ${
-                      isFavorite(hotel) ? 'text-red-500' : 'text-gray-400 hover:text-red-400'
-                    }`}
+                    className={`absolute top-4 right-4 p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-200 hover:scale-110 ${isFavorite(hotel) ? 'text-red-500' : 'text-gray-400 hover:text-red-400'
+                      }`}
                   >
                     <svg className="w-5 h-5" fill={isFavorite(hotel) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -217,9 +171,9 @@ const HotelsSection = ({ countryName = "Egypt" }) => {
                         </>
                       )}
                     </div>
-                    <a 
-                      href={hotel.website} 
-                      target="_blank" 
+                    <a
+                      href={hotel.website}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="px-5 py-2 bg-orange-600 text-white rounded-full font-semibold hover:bg-orange-700 hover:cursor-pointer transition-colors shadow-md hover:shadow-lg text-sm"
                     >

@@ -1,17 +1,12 @@
-import React, { useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
-
-import paris from "../../assets/paris.png";
-import dubai from "../../assets/Dubai.png";
-import egypt from "../../assets/country (1).jpg";
-import italy from "../../assets/country (2).jpg";
+import { useEffect } from "react";
 
 const places = [
-  { name: "Paris, France", img: paris },
-  { name: "Egypt", img: egypt },
-  { name: "Dubai, UAE", img: dubai },
-  { name: "Italy", img: italy },
+  { name: "Dubai, UAE", img: "destinations/dubai.png" },
+  { name: "Egypt", img: "destinations/egypt.jpg" },
+  { name: "Italy", img: "destinations/italy.jpg" },
+  { name: "Paris, France", img: "destinations/paris.png" },
 ];
 
 export default function Destinations() {
@@ -43,10 +38,11 @@ export default function Destinations() {
 
         {/* big image */}
         <div
-  className="md:col-span-2 md:row-span-1 rounded-xl overflow-hidden h-110 "
-  data-aos="fade-right"
->
+          className="md:col-span-2 md:row-span-1 rounded-xl overflow-hidden h-110 "
+          data-aos="fade-right"
+        >
           <img
+            loading="lazy"
             src={places[0].img}
             alt={places[0].name}
             className="w-full h-full object-cover transform hover:scale-110 transition duration-500"
@@ -62,10 +58,11 @@ export default function Destinations() {
 
           {/* top right */}
           <div
-  className="rounded-xl overflow-hidden  md:h-52"
-  data-aos="fade-left"
->
+            className="rounded-xl overflow-hidden  md:h-52"
+            data-aos="fade-left"
+          >
             <img
+              loading="lazy"
               src={places[1].img}
               alt={places[1].name}
               className="w-full h-full object-cover transform hover:scale-110 transition duration-500"
@@ -85,6 +82,7 @@ export default function Destinations() {
                 data-aos="fade-up"
               >
                 <img
+                  loading="lazy"
                   src={place.img}
                   alt={place.name}
                   className="w-full h-50 object-cover transform hover:scale-110 transition duration-500 rounded-xl"

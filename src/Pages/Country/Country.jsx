@@ -1,36 +1,28 @@
-import { useState } from "react";
 import { useParams } from "react-router-dom";
 
+import CTASection from "./CTASection";
 import HeroSection from "./HeroSection";
 import HotelsSection from "./HotelsSection";
-import RestaurantsSection from "./RestaurantsSection";
-import PopularPlacesSection from "./PopularPlaces";
 import InfoSection from "./InfoSection";
-import CTASection from "./CTASection";
+import PopularPlacesSection from "./PopularPlaces";
+import RestaurantsSection from "./RestaurantsSection";
 
 const CountryPage = () => {
   const { countryName } = useParams();
 
-  const [currentCountry, setCurrentCountry] = useState(
-    countryName || "Turkey"
-  );
-
   return (
-    <div className="w-full overflow-x-hidden bg-gray-50">
-      <HeroSection
-        onCountryChange={setCurrentCountry}
-        selectedCountry={currentCountry}
-      />
+    <div className="w-full overflow-hidden bg-gray-50">
+      <HeroSection selectedCountry={countryName} />
 
-      <HotelsSection countryName={currentCountry} />
+      <HotelsSection countryName={countryName} />
 
-      <RestaurantsSection countryName={currentCountry} />
+      <RestaurantsSection countryName={countryName} />
 
-      <PopularPlacesSection countryName={currentCountry} />
+      <PopularPlacesSection countryName={countryName} />
 
-      <InfoSection countryName={currentCountry} />
+      <InfoSection countryName={countryName} />
 
-      <CTASection currentCountry={currentCountry} />
+      <CTASection currentCountry={countryName} />
     </div>
   );
 };
