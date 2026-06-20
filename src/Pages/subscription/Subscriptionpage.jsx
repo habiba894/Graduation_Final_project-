@@ -12,7 +12,7 @@ import { CalendarX2, Headset, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { createPaymentSession } from "../../api/paymentApi";
-import heropic from "../../assets/aboutUs.png";
+import heropic from "../../assets/about-us.png";
 
 const accent = "#e8472a";
 const dark = "#1a3c34";

@@ -59,7 +59,7 @@ const BHero = () => {
 
     // if (!destination) return;
 
-    navigate(RoutesList.Country(destination || "Egypt"), {
+    navigate(RoutesList.Country(destination.toLowerCase() || "egypt"), {
       state: {
         country: destination,
         travelDate,

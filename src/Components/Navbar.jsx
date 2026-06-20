@@ -6,8 +6,8 @@ import "aos/dist/aos.css";
 
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import RoutesList from "../utils/routesList";
 import { useAuth } from "../context/AuthContext";
+import RoutesList from "../utils/routesList";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -64,7 +64,7 @@ const Navbar = () => {
     <>
       {/* 🧭 NAVBAR */}
       <div className="flex justify-between items-center w-full px-4 md:px-10 py-3 bg-white sticky top-0 z-50 shadow-sm">
-        
+
         {/* 🪙 LOGO */}
         <Link to={RoutesList.Home}>
           <div className="logo flex items-center gap-2 relative cursor-pointer">
@@ -105,10 +105,16 @@ const Navbar = () => {
           </Link>
 
           {/* 👑 Premium Badge */}
-          <div className="flex items-center gap-2 cursor-pointer text-gray-600 hover:text-[#d14b30] transition">
+          <Link
+            to={RoutesList.Premium}
+            className={`flex items-center gap-2 transition ${location.pathname === RoutesList.Premium
+              ? "text-[#d14b30] font-bold"
+              : "text-gray-600 hover:text-[#d14b30]"
+              }`}
+          >
             <img src={crown} alt="crown" className="w-5" />
             <span className="text-sm">Premium</span>
-          </div>
+          </Link>
         </div>
 
         {/* 🔘 DESKTOP AUTH BUTTONS / USER DROPDOWN */}
@@ -304,10 +310,14 @@ const Navbar = () => {
           </Link>
 
           {/* Premium Badge */}
-          <div className="flex items-center gap-2 mt-2 p-3 bg-orange-50 rounded-xl">
+          <Link
+            to={RoutesList.Premium}
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2 mt-2 p-3 bg-orange-50 rounded-xl"
+          >
             <img src={crown} alt="crown" className="w-5" />
             <span className="font-semibold text-orange-600">Premium</span>
-          </div>
+          </Link>
         </nav>
 
         {/* Mobile Auth Buttons */}
