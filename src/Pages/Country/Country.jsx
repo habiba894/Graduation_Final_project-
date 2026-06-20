@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 
 import { useEffect, useState } from "react";
 import { apiServices } from "../../services/api";
+import useCountryStore from "../../stores/countryStore";
 import CTASection from "./CTASection";
 import HeroSection from "./HeroSection";
 import HotelsSection from "./HotelsSection";
@@ -19,7 +20,7 @@ const CountryPage = () => {
   const [countryDetails, setCountryDetails] = useState([]);
   const [countryRestaurants, setCountryRestaurants] = useState([]);
 
-
+  const { setCountryDetails: storeCountryDetails } = useCountryStore();
   useEffect(() => {
     const fetchCountryDetails = async () => {
       try {
@@ -53,7 +54,18 @@ const CountryPage = () => {
 
   return (
     <div className="w-full overflow-hidden bg-gray-50">
-      <HeroSection details={countryDetails} landmarks={countryLandmarks} countryName={countryName} loading={loading} />
+      <HeroSection
+        onStartPlanning={() => storeCountryDetails({
+          hotels: countryHotels,
+          places: countryPlaces,
+          images: countryLandmarks,
+          restaurants: countryRestaurants,
+          details: { ...countryDetails },
+        })}
+        details={countryDetails}
+        landmarks={countryLandmarks}
+        countryName={countryName}
+        loading={loading} />
 
       <HotelsSection hotels={countryHotels} countryName={countryName} loading={loading} />
 

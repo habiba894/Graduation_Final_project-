@@ -40,15 +40,13 @@ const CARD_ICONS = {
   ),
 };
 
-const HeroSectionWithCards = ({ details, landmarks, countryName, loading }) => {
-  // Slider state — this is the ONLY state that should change on the interval.
+const HeroSectionWithCards = ({ details, landmarks, countryName, onStartPlanning, loading }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const [weatherData, setWeatherData] = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
 
   const navigate = useNavigate();
-console.log(landmarks)
   const fetchWeather = useCallback(async (name) => {
     try {
       setWeatherLoading(true);
@@ -68,7 +66,6 @@ console.log(landmarks)
       setWeatherLoading(false);
     }
   }, []);
-
   // Country-level data fetch — fires only when countryName changes.
   useEffect(() => {
     fetchWeather(countryName);
@@ -284,10 +281,12 @@ console.log(landmarks)
               ))}
 
               <button
-                onClick={() =>
+                onClick={() => {
+                  onStartPlanning();
                   navigate(RoutesList.TripPlan(details.slug), {
                     state: { country: details.slug },
                   })
+                }
                 }
                 className="flex items-center gap-2 px-6 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-semibold border border-white/30 hover:bg-white/30 hover:gap-3 transition-all duration-300"
               >
