@@ -1,81 +1,12 @@
 import { useEffect, useState } from "react";
-import { apiServices } from "../../services/api";
 
 const defaultHotelImg = "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&auto=format&fit=crop";
 
-
-// 💰 دالة تنسيق السعر الحقيقي (من الـ API)
-const formatPrice = (price) => {
-  if (!price) return "";
-  const str = String(price).trim();
-  if (str.includes('$')) return str;
-  if (/^[\d.-]+$/.test(str)) return `$${str}`;
-  return "";
-};
-
-// 💰 دالة حساب السعر من الـ Range (Fallback - من الكود القديم)
-const getPriceFromRange = (priceRange, hotelName) => {
-  const ranges = {
-    'Budget': [50, 100],
-    'Standard': [100, 200],
-    'Premium': [200, 400],
-    'Luxury': [400, 800]
-  };
-  const [min, max] = ranges[priceRange] || [100, 200];
-  const hash = hotelName.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-  const price = min + (hash % (max - min + 1));
-  return `$${price}`;
-};
-
-// 🎯 دالة موحدة للبرايس: تحاول الحقيقي أولاً، ثم الفول باك
-const getFinalPrice = (hotel) => {
-  // 1️⃣ لو فيه سعر حقيقي من الـ API → نستخدمه
-  if (hotel.price) {
-    const formatted = formatPrice(hotel.price);
-    if (formatted) return formatted;
-  }
-  // 2️⃣ لو فيه priceRange (زي "Premium") → نستخدم الدالة القديمة
-  if (hotel.priceRange) {
-    return getPriceFromRange(hotel.priceRange, hotel.name);
-  }
-  // 3️⃣ لو مفيش → فاضي
-  return "";
-};
-
-const HotelsSection = ({ countryName = "Egypt" }) => {
-  const [hotels, setHotels] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const HotelsSection = ({ hotels, countryName, loading }) => {
   const [favorites, setFavorites] = useState(() => {
     const saved = localStorage.getItem('hotelFavorites');
     return saved ? JSON.parse(saved) : [];
   });
-
-  useEffect(() => {
-    const fetchHotels = async () => {
-      try {
-        const res = await apiServices.getHotels(countryName.trim().toLowerCase());
-        if (!res.data?.length) throw new Error("No hotels found");
-        console.log("Fetched hotels:", res.data); // ✅ Debugging log
-        setHotels(res.data.map((hotel, i) => ({
-          id: hotel.id || i + 1,
-          name: hotel.name,
-          image: hotel.photo,
-          rating: hotel.stars,
-          price: getFinalPrice(hotel), // ✅ دالة موحدة للبرايس
-          location: hotel.location,
-          website: hotel.link
-        })));
-        setError(null);
-      } catch (err) {
-        setError(`Failed to load hotels: ${err.message}`);
-        setHotels([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchHotels();
-  }, [countryName]);
 
   useEffect(() => {
     localStorage.setItem('hotelFavorites', JSON.stringify(favorites));
@@ -107,12 +38,6 @@ const HotelsSection = ({ countryName = "Egypt" }) => {
           </button>
         </div>
 
-        {error && (
-          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-            ⚠️ {error}
-          </div>
-        )}
-
         {loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map(i => <div key={i} className="bg-white rounded-2xl h-96 animate-pulse shadow-lg" />)}
@@ -130,7 +55,8 @@ const HotelsSection = ({ countryName = "Egypt" }) => {
               >
                 <div className="relative h-64 overflow-hidden">
                   <img
-                    src={hotel.image}
+                    loading="lazy"
+                    src={`/${hotel.image}`}
                     alt={hotel.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     onError={(e) => { e.target.src = defaultHotelImg; }}
@@ -152,27 +78,20 @@ const HotelsSection = ({ countryName = "Egypt" }) => {
                       <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
-                      <span className="text-sm font-semibold text-gray-600">{hotel.rating}.0</span>
+                      <span className="text-sm font-semibold text-gray-600">{hotel.rating}</span>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-600 mb-4">
-                    <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <span className="text-sm">{hotel.location}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <div>
                       {hotel.price && (
                         <>
-                          <span className="text-2xl font-bold text-orange-600">{hotel.price}</span>
+                          <span className="text-2xl font-bold text-orange-600">{hotel.price.split("/")[0]}</span>
                           <span className="text-gray-500 text-sm">/night</span>
                         </>
                       )}
                     </div>
                     <a
-                      href={hotel.website}
+                      href={hotel.link}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="px-5 py-2 bg-orange-600 text-white rounded-full font-semibold hover:bg-orange-700 hover:cursor-pointer transition-colors shadow-md hover:shadow-lg text-sm"

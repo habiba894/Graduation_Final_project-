@@ -1,82 +1,11 @@
 import { useEffect, useState } from "react";
-import { apiServices } from "../../services/api";
-;
-
 
 const defaultPlaceImage = "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&auto=format&fit=crop&q=80";
-
-const getPlaceImageUrl = (placeName) => {
-  // ✅ نرجع الصورة المحلية لو المكان موجود في القائمة
-  if (images[placeName]) {
-    return images[placeName];
-  }
-  // ❌ لو مش موجود → نرجع الصورة الافتراضية
-  return defaultPlaceImage;
-};
-
-
-
-// 🗺️ دالة لإنشاء رابط Google Maps
-const getMapsLink = (placeName) => {
-  return `https://www.google.com/maps/search/${encodeURIComponent(placeName)}`;
-};
-
-// 🔗 دالة لاختيار رابط ويكيبيديا
-const getWikiLink = (placeName) => {
-  // لو المكان في قاموسنا → نرجع اللينك المحدد
-  if (wikiLinks[placeName]) {
-    return wikiLinks[placeName];
-  }
-  // لأي مكان جديد → نولد رابط ويكيبيديا ديناميكي
-  const searchQuery = encodeURIComponent(placeName);
-  return `https://en.wikipedia.org/wiki/Special:Search?search=${searchQuery}`;
-};
-
-const PopularPlacesSection = ({ countryName = "Egypt" }) => {
-  const [places, setPlaces] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
+const PopularPlacesSection = ({ places, countryName, loading }) => {
   const [favorites, setFavorites] = useState(() => {
     const saved = localStorage.getItem('placeFavorites');
     return saved ? JSON.parse(saved) : [];
   });
-
-  useEffect(() => {
-    const fetchPlaces = async () => {
-      try {
-        const countryParam = countryName.trim().toLowerCase();
-        const res = await apiServices.getPopularPlaces(countryParam);
-
-        // ✅ الحل السحري: خد الداتا من أي مكان تكون فيه
-        const placesData = res?.data || res;
-
-        console.log("📦 Parsed places data:", placesData); // عشان تتأكدي في الكونسول
-
-        if (Array.isArray(placesData) && placesData.length > 0) {
-          const formattedPlaces = placesData.map((place, index) => ({
-            id: place.id || index + 1,
-            name: place.name,
-            description: place.description,
-            image: getPlaceImageUrl(place.photo),
-            wikiLink: getWikiLink(place.name),
-            mapsLink: getMapsLink(place.name)
-          }));
-          setPlaces(formattedPlaces);
-          setError(null);
-        } else {
-          throw new Error("No places found");
-        }
-      } catch (err) {
-        console.error("❌ Error details:", err);
-        setError("Failed to load places. Please try again later.");
-        setPlaces([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchPlaces();
-  }, [countryName]);
 
   useEffect(() => {
     localStorage.setItem('placeFavorites', JSON.stringify(favorites));
@@ -119,12 +48,6 @@ const PopularPlacesSection = ({ countryName = "Egypt" }) => {
           </button>
         </div>
 
-        {error && (
-          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4" role="alert">
-            <span className="block sm:inline">⚠️ {error}</span>
-          </div>
-        )}
-
         {loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map(i => (
@@ -145,7 +68,7 @@ const PopularPlacesSection = ({ countryName = "Egypt" }) => {
                 <div className="relative h-64 overflow-hidden">
                   <img
                     loading="lazy"
-                    src={place.image}  // ✅ الصورة المحلية مباشرة
+                    src={`/${place.image}`}  // ✅ الصورة المحلية مباشرة
                     alt={place.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     onError={(e) => handleImageError(place.name, e)}
@@ -173,7 +96,7 @@ const PopularPlacesSection = ({ countryName = "Egypt" }) => {
 
                   <div className="flex justify-between items-center">
                     <a
-                      href={place.mapsLink}
+                      href={`https://www.google.com/maps/search/${encodeURIComponent(place.name)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-orange-600 font-semibold text-sm flex items-center gap-1 hover:underline hover:cursor-pointer"
@@ -187,7 +110,7 @@ const PopularPlacesSection = ({ countryName = "Egypt" }) => {
                     </a>
 
                     <a
-                      href={place.wikiLink}
+                      href={place.link}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="px-5 py-2 bg-orange-600 text-white rounded-full font-semibold hover:bg-orange-700 hover:cursor-pointer transition-colors shadow-md hover:shadow-lg text-sm flex items-center gap-1"
@@ -206,7 +129,7 @@ const PopularPlacesSection = ({ countryName = "Egypt" }) => {
         )}
 
         {/* ✅ رسالة لو مفيش أماكن */}
-        {!loading && places.length === 0 && !error && (
+        {!loading && places.length === 0 && (
           <div className="text-center py-12 bg-white rounded-2xl shadow-lg">
             <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
