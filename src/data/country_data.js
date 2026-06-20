@@ -8,6 +8,14 @@ const countryData = {
         city: "Cairo",
         currency: "EGP",
         highlights: ["Pyramids", "Nile Cruise", "Red Sea"],
+        details: {
+            code: "EG",
+            language: "Arabic",
+            timezone: "UTC+02:00",
+            population: "114,535,772",
+            subregion: "Northern Africa",
+            currency: "Egyptian Pound (EGP)",
+        },
         images: [
             "country/egypt/landmarks/landmark-1.jpg",
             "country/egypt/landmarks/landmark-2.jpg",
@@ -71,6 +79,14 @@ const countryData = {
         city: "Paris",
         currency: "EUR",
         highlights: ["Eiffel Tower", "Louvre", "French Riviera"],
+        details: {
+            code: "FR",
+            language: "French",
+            timezone: "UTC+01:00",
+            currency: "Euro (EUR)",
+            population: "68,400,000",
+            subregion: "Western Europe"
+        },
         images: [
             "country/france/landmarks/landmark-1.jpg",
             "country/france/landmarks/landmark-2.jpg",
@@ -135,6 +151,14 @@ const countryData = {
         city: "Istanbul",
         currency: "TRY",
         highlights: ["Bosphorus", "Cappadocia", "Grand Bazaar"],
+        details: {
+            code: "TR",
+            language: "Turkish",
+            timezone: "UTC+03:00",
+            population: "85,700,000",
+            subregion: "Western Asia",
+            currency: "Turkish Lira (TRY)",
+        },
         images: [
             "country/turkey/landmarks/landmark-1.jpg",
             "country/turkey/landmarks/landmark-2.jpg",
