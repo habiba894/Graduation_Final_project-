@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import bg from "../../assets/profile-bg.jpg";
 import { useAuth } from "../../context/AuthContext";
 import { profileService } from "../../services/api";
+import useFavoriteStore from "../../stores/favoriteStore";
 
 // ======================================================
 // IMPORT SERVICES
@@ -34,10 +35,22 @@ export default function ProfilePage() {
   // ======================================================
 
   const [tripPlans, setTripPlans] = useState([]);
-  const [favoritePlaces, setFavoritePlaces] = useState([]);
-  const [favorites, setFavorites] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(!cachedUser);
+
+  // ======================================================
+  // FAVORITES (ZUSTAND)
+  // ======================================================
+
+  const favoriteHotels = useFavoriteStore((state) => state.hotels);
+  const favoriteRestaurants = useFavoriteStore((state) => state.restaurants);
+  const favoritePlaces = useFavoriteStore((state) => state.places);
+  const removeHotel = useFavoriteStore((state) => state.removeHotel);
+  const removeRestaurant = useFavoriteStore((state) => state.removeRestaurant);
+  const removePlace = useFavoriteStore((state) => state.removePlace);
+
+  const totalFavorites =
+    favoriteHotels.length + favoriteRestaurants.length + favoritePlaces.length;
 
   // ======================================================
   // FETCH PROFILE DATA
@@ -62,11 +75,6 @@ export default function ProfilePage() {
 
       const trips = await profileService.getUserTrips();
       setTripPlans(trips || []);
-
-      const places = await profileService.getFavoritePlaces();
-      setFavoritePlaces(places || []);
-
-      setFavorites(places.map((place) => place.id));
     } catch (error) {
       console.log("PROFILE ERROR:", error);
     } finally {
@@ -116,30 +124,6 @@ export default function ProfilePage() {
   };
 
   // ======================================================
-  // TOGGLE FAVORITE
-  // ======================================================
-
-  const toggleFavorite = async (placeId) => {
-    try {
-      const isAlreadyFavorite = favorites.includes(placeId);
-
-      if (isAlreadyFavorite) {
-        await profileService.deleteFavoritePlace(placeId);
-
-        setFavorites((prev) =>
-          prev.filter((id) => id !== placeId)
-        );
-      } else {
-        await profileService.toggleFavoritePlace(placeId);
-
-        setFavorites((prev) => [...prev, placeId]);
-      }
-    } catch (error) {
-      console.log("FAVORITE ERROR:", error);
-    }
-  };
-
-  // ======================================================
   // LOADING
   // ======================================================
 
@@ -166,7 +150,7 @@ export default function ProfilePage() {
         {/* 📊 Stats Dashboard Bar */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <StatCard title="Trips Planned" value={tripPlans.length} icon="✈️" />
-          <StatCard title="Favorites" value={favoritePlaces.length} icon="❤️" />
+          <StatCard title="Favorites" value={totalFavorites} icon="❤️" />
           <StatCard title="Membership Status" value={userData.isPremium ? "Premium" : "Standard"} icon="👑" />
           <StatCard title="Member Since" value={userData.memberSince || "June 2026"} icon="🗓️" />
         </div>
@@ -196,21 +180,54 @@ export default function ProfilePage() {
           </div>
         )}
 
-        <SectionHeader title="Favorite Places" />
-        {favoritePlaces.length > 0 ? (
+        <SectionHeader title="Favorite Hotels" />
+        {favoriteHotels.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mt-6">
-            {favoritePlaces.map((place) => (
+            {favoriteHotels.map((hotel) => (
               <FavoriteCard
-                key={place.id}
-                place={place}
-                isFavorite={favorites.includes(place.id)}
-                onToggleFavorite={() => toggleFavorite(place.id)}
+                key={`${hotel.country}-${hotel.id}`}
+                item={hotel}
+                onRemove={() => removeHotel(hotel.country, hotel.id)}
               />
             ))}
           </div>
         ) : (
           <div className="bg-white border border-dashed border-gray-200 rounded-3xl p-12 text-center text-gray-400 font-medium mt-6 shadow-sm">
-            No favorite places saved. Add some favorites!
+            No favorite hotels saved yet.
+          </div>
+        )}
+
+        <SectionHeader title="Favorite Restaurants" />
+        {favoriteRestaurants.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mt-6">
+            {favoriteRestaurants.map((restaurant) => (
+              <FavoriteCard
+                key={`${restaurant.country}-${restaurant.id}`}
+                item={restaurant}
+                onRemove={() => removeRestaurant(restaurant.country, restaurant.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white border border-dashed border-gray-200 rounded-3xl p-12 text-center text-gray-400 font-medium mt-6 shadow-sm">
+            No favorite restaurants saved yet.
+          </div>
+        )}
+
+        <SectionHeader title="Favorite Places" />
+        {favoritePlaces.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mt-6">
+            {favoritePlaces.map((place) => (
+              <FavoriteCard
+                key={`${place.country}-${place.id}`}
+                item={place}
+                onRemove={() => removePlace(place.country, place.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white border border-dashed border-gray-200 rounded-3xl p-12 text-center text-gray-400 font-medium mt-6 shadow-sm">
+            No favorite places saved yet.
           </div>
         )}
       </main>
@@ -514,36 +531,35 @@ function TripCard({ trip }) {
 // FAVORITE CARD
 // ======================================================
 
-function FavoriteCard({
-  place,
-  isFavorite,
-  onToggleFavorite,
-}) {
+function FavoriteCard({ item, onRemove }) {
   return (
     <div className="bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-xl hover:scale-[1.02] transition duration-300 border border-gray-100 flex flex-col text-left">
       <div className="relative overflow-hidden h-48">
         <img
-          src={place.image}
-          alt={place.title}
+          src={item.image ? `/${item.image}` : "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&auto=format&fit=crop&q=80"}
+          alt={item.name}
           className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
         />
 
         <button
-          onClick={onToggleFavorite}
+          onClick={onRemove}
+          title="Remove from favorites"
           className="absolute top-3 right-3 bg-white/95 backdrop-blur-md w-9 h-9 rounded-full flex items-center justify-center text-lg shadow-md hover:scale-110 active:scale-95 transition-all duration-200"
         >
-          {isFavorite ? "❤️" : "🤍"}
+          ❤️
         </button>
       </div>
 
       <div className="p-5 flex-grow flex flex-col justify-between">
         <h3 className="text-lg font-bold text-gray-800 line-clamp-1">
-          {place.title}
+          {item.name}
         </h3>
 
-        <p className="text-gray-600 font-semibold mt-4 text-sm flex items-center gap-1">
-          <span className="text-[#d14b30]">📍</span> {place.location}
-        </p>
+        {item.country && (
+          <p className="text-gray-600 font-semibold mt-4 text-sm flex items-center gap-1">
+            <span className="text-[#d14b30]">📍</span> {item.country}
+          </p>
+        )}
       </div>
     </div>
   );

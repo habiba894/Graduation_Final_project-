@@ -1,30 +1,31 @@
-import { useEffect, useState } from "react";
+import useFavoriteStore from "../../stores/favoriteStore";
 
 const defaultRestaurantImage = "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&auto=format&fit=crop";
 
 const RestaurantsSection = ({ restaurants, countryName, loading }) => {
-  const [favorites, setFavorites] = useState(() => {
-    const saved = localStorage.getItem('restaurantFavorites');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const favoriteRestaurants = useFavoriteStore((state) => state.restaurants);
+  const addRestaurant = useFavoriteStore((state) => state.addRestaurant);
+  const removeRestaurant = useFavoriteStore((state) => state.removeRestaurant);
 
-  useEffect(() => {
-    localStorage.setItem('restaurantFavorites', JSON.stringify(favorites));
-  }, [favorites]);
+  const isFavorite = (restaurant) =>
+    favoriteRestaurants.some(
+      (f) =>
+        f.id === restaurant.id &&
+        String(f.country || "").toLowerCase().trim() ===
+          String(countryName || "").toLowerCase().trim()
+    );
 
   const toggleFavorite = (restaurant) => {
-    setFavorites(prev => {
-      const isFavorite = prev.some(f => f.id === restaurant.id && f.name === restaurant.name);
-      if (isFavorite) {
-        return prev.filter(f => !(f.id === restaurant.id && f.name === restaurant.name));
-      } else {
-        return [...prev, { id: restaurant.id, name: restaurant.name, country: countryName }];
-      }
-    });
-  };
-
-  const isFavorite = (restaurant) => {
-    return favorites.some(f => f.id === restaurant.id && f.name === restaurant.name);
+    if (isFavorite(restaurant)) {
+      removeRestaurant(countryName, restaurant.id);
+    } else {
+      addRestaurant({
+        id: restaurant.id,
+        name: restaurant.name,
+        image: restaurant.image,
+        country: countryName,
+      });
+    }
   };
 
   return (
@@ -66,7 +67,6 @@ const RestaurantsSection = ({ restaurants, countryName, loading }) => {
                     alt={r.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     onError={(e) => { e.target.onerror = null; e.target.src = defaultRestaurantImage; }}
-                    loading="lazy"
                   />
 
 

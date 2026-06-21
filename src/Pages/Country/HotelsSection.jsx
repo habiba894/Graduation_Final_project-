@@ -1,28 +1,34 @@
-import { useEffect, useState } from "react";
+import useFavoriteStore from "../../stores/favoriteStore";
 
 const defaultHotelImg = "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&auto=format&fit=crop";
 
 const HotelsSection = ({ hotels, countryName, loading }) => {
-  const [favorites, setFavorites] = useState(() => {
-    const saved = localStorage.getItem('hotelFavorites');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  useEffect(() => {
-    localStorage.setItem('hotelFavorites', JSON.stringify(favorites));
-  }, [favorites]);
-
-  const toggleFavorite = (hotel) => {
-    setFavorites(prev => {
-      const exists = prev.some(f => f.id === hotel.id && f.name === hotel.name);
-      return exists
-        ? prev.filter(f => !(f.id === hotel.id && f.name === hotel.name))
-        : [...prev, { id: hotel.id, name: hotel.name, country: countryName }];
-    });
-  };
+  const favoriteHotels = useFavoriteStore((state) => state.hotels);
+  const addHotel = useFavoriteStore((state) => state.addHotel);
+  const removeHotel = useFavoriteStore((state) => state.removeHotel);
 
   const isFavorite = (hotel) =>
-    favorites.some(f => f.id === hotel.id && f.name === hotel.name);
+    favoriteHotels.some(
+      (f) =>
+        f.id === hotel.id &&
+        String(f.country || "").toLowerCase().trim() ===
+          String(countryName || "").toLowerCase().trim()
+    );
+
+  const toggleFavorite = (hotel) => {
+    if (isFavorite(hotel)) {
+      removeHotel(countryName, hotel.id);
+    } else {
+      addHotel({
+        id: hotel.id,
+        name: hotel.name,
+        image: hotel.image,
+        price: hotel.price,
+        link: hotel.link,
+        country: countryName,
+      });
+    }
+  };
 
   return (
     <section className="bg-gray-50 w-full pt-8">

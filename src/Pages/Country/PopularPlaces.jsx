@@ -1,29 +1,31 @@
-import { useEffect, useState } from "react";
+import useFavoriteStore from "../../stores/favoriteStore";
 
 const defaultPlaceImage = "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&auto=format&fit=crop&q=80";
 const PopularPlacesSection = ({ places, countryName, loading }) => {
-  const [favorites, setFavorites] = useState(() => {
-    const saved = localStorage.getItem('placeFavorites');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const favoritePlaces = useFavoriteStore((state) => state.places);
+  const addPlace = useFavoriteStore((state) => state.addPlace);
+  const removePlace = useFavoriteStore((state) => state.removePlace);
 
-  useEffect(() => {
-    localStorage.setItem('placeFavorites', JSON.stringify(favorites));
-  }, [favorites]);
+  const isFavorite = (place) =>
+    favoritePlaces.some(
+      (f) =>
+        f.id === place.id &&
+        String(f.country || "").toLowerCase().trim() ===
+          String(countryName || "").toLowerCase().trim()
+    );
 
   const toggleFavorite = (place) => {
-    setFavorites(prev => {
-      const isFavorite = prev.some(f => f.id === place.id && f.name === place.name);
-      if (isFavorite) {
-        return prev.filter(f => !(f.id === place.id && f.name === place.name));
-      } else {
-        return [...prev, { id: place.id, name: place.name, country: countryName }];
-      }
-    });
-  };
-
-  const isFavorite = (place) => {
-    return favorites.some(f => f.id === place.id && f.name === place.name);
+    if (isFavorite(place)) {
+      removePlace(countryName, place.id);
+    } else {
+      addPlace({
+        id: place.id,
+        name: place.name,
+        image: place.image,
+        link: place.link,
+        country: countryName,
+      });
+    }
   };
 
   const handleImageError = (placeName, e) => {
