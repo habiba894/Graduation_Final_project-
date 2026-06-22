@@ -1,14 +1,14 @@
-import React, { useEffect } from "react";
+import {
+  BoltIcon,
+  GlobeAltIcon,
+  MapIcon,
+  PaperAirplaneIcon,
+  UserCircleIcon,
+} from "@heroicons/react/24/outline";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import aboutUsImg from "../../assets/aboutUs.png";
-import {
-  MapIcon,
-  BoltIcon,
-  UserCircleIcon,
-  PaperAirplaneIcon,
-  GlobeAltIcon,
-} from "@heroicons/react/24/outline";
+import { useEffect } from "react";
+import aboutUsImg from "../../assets/about-us.png";
 
 const stats = [
   { value: "50+", label: "Countries Covered" },
@@ -199,6 +199,7 @@ const Aboutus = () => {
 
               <div className="relative rounded-3xl overflow-hidden shadow-2xl floating-img">
                 <img
+                  loading="lazy"
                   src={aboutUsImg}
                   alt="About WanderLust"
                   className="w-full h-full object-cover"

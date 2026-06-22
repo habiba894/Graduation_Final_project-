@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import ProtectedRoute from "../components/ProtectedRoute";
 import Layout from "../layouts/MainLayout";
 import RoutesList from "./routesList";
 
@@ -11,6 +12,7 @@ const CountryPage = lazy(() => import("../pages/country/Country"));
 const ProfilePage = lazy(() => import("../pages/profile/Profile"));
 const TripPlan = lazy(() => import("../pages/trip-plan/TripPlan"));
 const Subscription = lazy(() => import("../pages/subscription/Subscriptionpage"));
+const PremiumPage = lazy(() => import("../pages/premium/Premium"));
 
 export default function AppRoutes() {
     return (
@@ -24,10 +26,20 @@ export default function AppRoutes() {
 
             <Route element={<Layout />}>
                 <Route path={RoutesList.Home} element={<Home />} />
-                <Route path={RoutesList.TripPlan} element={<TripPlan />} />
-                <Route path={RoutesList.Profile} element={<ProfilePage />} />
-                <Route path={RoutesList.Country} element={<CountryPage />} />
+                <Route path={RoutesList.Profile} element={
+                    <ProtectedRoute>
+                        <ProfilePage />
+                    </ProtectedRoute>
+                } />
+                <Route path={RoutesList.Premium} element={
+                    <ProtectedRoute>
+                        <PremiumPage />
+                    </ProtectedRoute>
+                } />
+                <Route path={RoutesList.TripPlanRoute} element={<TripPlan />} />
+                <Route path={RoutesList.CountryRoute} element={<CountryPage />} />
                 <Route path={RoutesList.Subscription} element={<Subscription />} />
+                <Route path={RoutesList.TripPlannedRoute} element={<TripPlan />} />
             </Route>
 
             <Route path="*" element={<Navigate to={RoutesList.Home} replace />} />

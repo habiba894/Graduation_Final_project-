@@ -1,148 +1,31 @@
-import React, { useState, useEffect } from "react";
-import Egyptrest1 from "../../assets/Egyptrest1.jpg";
-import Egyptrest2 from "../../assets/Egyptrest2.jpg";
-import Egyptrest3 from "../../assets/Egyptrest3.jpg";
-import Francerest1 from "../../assets/Francerest1.jpg"
-import Francerest2 from "../../assets/Francerest2.jpg"
-import Francerest3 from "../../assets/Francerest3.jpg"
-import turkrest1 from "../../assets/turkrest1.jpg"; 
-import turkrest2 from "../../assets/turkrest2.jpg"; 
-import turkrest3 from "../../assets/turkrest3.jpg"; 
-
-const NGROK_BASE_URL = "https://designing-unworried-left.ngrok-free.dev";
-
-const hardcodedSocialLinks = {
-  "Khan el-Khalili Restaurant": "https://www.instagram.com/khanelkhalilirestaurant?igsh=MTZka2xmNGRiOWJ2dw==",
-  "Abou Tarek": "https://www.instagram.com/koshariaboutarek?igsh=MXY3dXY3YXdjNnVvag==",
-  "Sequoia Restaurant": "https://www.instagram.com/sequoiaonline?igsh=MWRqdTgwMDdrcG45Mw==",
-  "Le Bernardin": "https://www.le-bernardin.com/home",
-  "L'Ami Jean": "https://www.instagram.com/l_ami_jean?igsh=MTBpZHlqZWYydmN0Yg==",
-  "Le Comptoir du Relais": "https://www.instagram.com/comptoir_durelais?igsh=aXhybmdmcmVrcG9t",
-  "Ciğerci Arif": "https://www.instagram.com/cigerciarifozluce62?igsh=aWV6YXN0bjYxczFv",
-  "Hamdi Restaurant": "https://www.instagram.com/hamdirestaurants?igsh=cjQwaWt1eWtuMG4w",
-  "Mikla Restaurant": "https://www.instagram.com/miklarestaurant?igsh=MTFyMWJrZmQ0bTZiNg==",
-};
-
-const restaurantImages = {
-  "Khan el-Khalili Restaurant": Egyptrest1,
-  "Abou Tarek": Egyptrest2,
-  "Sequoia Restaurant": Egyptrest3,
-  "Le Bernardin": Francerest1,
-  "L'Ami Jean": Francerest2,
-  "Le Comptoir du Relais": Francerest3,
-  "Ciğerci Arif": turkrest1,
-  "Hamdi Restaurant": turkrest2,
-  "Mikla Restaurant": turkrest3,
-  
-};
-
-const fallbackByCountry = {
-  egypt: [
-    { id: 1, name: "Khan el-Khalili Restaurant", stars: 4, kindOfFood: "Traditional Egyptian", nationality: "Egyptian", photo: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800", socialMediaLink: "https://www.instagram.com/khanelkhalilirestaurant?igsh=MTZka2xmNGRiOWJ2dw==", location: "Khan el-Khalili, Cairo" },
-    { id: 2, name: "Abou Tarek", stars: 4, kindOfFood: "Koshary & Egyptian Street Food", nationality: "Egyptian", photo: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800", socialMediaLink: "https://www.instagram.com/koshariaboutarek?igsh=MXY3dXY3YXdjNnVvag==", location: "Downtown, Cairo" },
-    { id: 3, name: "Sequoia Restaurant", stars: 5, kindOfFood: "Mediterranean & Egyptian Fusion", nationality: "Egyptian", photo: "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=800", socialMediaLink: "https://www.instagram.com/sequoiaonline?igsh=MWRqdTgwMDdrcG45Mw==", location: "Zamalek, Cairo" },
-  ],
-  france: [
-    { id: 1, name: "Le Bernardin", stars: 5, kindOfFood: "French Fine Dining", nationality: "French", photo: "https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?w=800", socialMediaLink: "https://www.le-bernardin.com/home", location: "Paris, France" },
-    { id: 2, name: "L'Ami Jean", stars: 4, kindOfFood: "Traditional French Bistro", nationality: "French", photo: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800", socialMediaLink: "https://www.instagram.com/l_ami_jean?igsh=MTBpZHlqZWYydmN0Yg==", location: "Paris, France" },
-    { id: 3, name: "Le Comptoir du Relais", stars: 4, kindOfFood: "French Bistro Cuisine", nationality: "French", photo: "https://images.unsplash.com/photo-1550966871-3ed3cd4ef577?w=800", socialMediaLink: "https://www.instagram.com/comptoir_durelais?igsh=aXhybmdmcmVrcG9t", location: "Paris, France" },
-  ],
-  turkey: [
-    { id: 1, name: "Ciğerci Arif", stars: 4, kindOfFood: "Traditional Turkish Kebab", nationality: "Turkish", photo: turkrest1, socialMediaLink: "https://www.instagram.com/cigerciarifozluce62?igsh=aWV6YXN0bjYxczFv", location: "Istanbul, Turkey" },
-    { id: 2, name: "Hamdi Restaurant", stars: 4, kindOfFood: "Ottoman & Turkish Cuisine", nationality: "Turkish", photo: turkrest2, socialMediaLink: "https://www.instagram.com/hamdirestaurants?igsh=cjQwaWt1eWtuMG4w", location: "Istanbul, Turkey" },
-    { id: 3, name: "Mikla Restaurant", stars: 5, kindOfFood: "Modern Turkish with Scandinavian Touch", nationality: "Turkish", photo: "https://images.unsplash.com/photo-1585937421612-70a008356f36?w=800", socialMediaLink: "https://www.instagram.com/miklarestaurant?igsh=MTFyMWJrZmQ0bTZiNg==", location: "Istanbul, Turkey" },
-  ],
-};
+import useFavoriteStore from "../../stores/favoriteStore";
 
 const defaultRestaurantImage = "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&auto=format&fit=crop";
-const locationByCountry = { egypt: "Cairo, Egypt", france: "Paris, France", turkey: "Istanbul, Turkey" };
-const getLocationByCountry = (country) => locationByCountry[country?.toLowerCase()?.trim()] || "City, Country";
 
-const getRestaurantImage = (name, apiPhoto, cuisine) => {
-  if (apiPhoto && typeof apiPhoto === 'string' && !apiPhoto.startsWith('http')) return apiPhoto;
-  if (apiPhoto && !apiPhoto.includes('example.com') && apiPhoto.trim()) return apiPhoto;
-  if (name && restaurantImages[name]) return restaurantImages[name];
-  if (cuisine && restaurantImages[cuisine]) return restaurantImages[cuisine];
-  return defaultRestaurantImage;
-};
+const RestaurantsSection = ({ restaurants, countryName, loading }) => {
+  const favoriteRestaurants = useFavoriteStore((state) => state.restaurants);
+  const addRestaurant = useFavoriteStore((state) => state.addRestaurant);
+  const removeRestaurant = useFavoriteStore((state) => state.removeRestaurant);
 
-const RestaurantsSection = ({ countryName = "Egypt" }) => {
-  const [restaurants, setRestaurants] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  
-  
-  const [favorites, setFavorites] = useState(() => {
-    const saved = localStorage.getItem('restaurantFavorites');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  useEffect(() => {
-    const fetchRestaurants = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const countryParam = countryName.trim().toLowerCase();
-        const apiUrl = `${NGROK_BASE_URL}/api/restaurants?country=${countryParam}`;
-        
-        const response = await fetch(apiUrl, {
-          method: 'GET',
-          headers: { "ngrok-skip-browser-warning": "true", "Accept": "application/json" },
-          mode: 'cors',
-        });
-        
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-          throw new Error(`API returned ${contentType} instead of JSON`);
-        }
-        if (response.status === 404) throw new Error("No restaurants found");
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        
-        const apiData = await response.json();
-        if (Array.isArray(apiData) && apiData.length > 0) {
-          const formatted = apiData.map((r, i) => ({
-            id: r.id || i + 1,
-            name: r.name,
-            image: r.photo,
-            rating: r.stars,
-            location: r.location || getLocationByCountry(countryParam),
-            cuisine: r.kindOfFood || r.nationality || "International",
-            socialMediaLink: hardcodedSocialLinks[r.name] || r.socialMediaLink || "#",
-          }));
-          setRestaurants(formatted);
-        } else {
-          throw new Error("Empty response");
-        }
-      } catch (err) {
-        console.error("❌ Error:", err);
-        setError("Showing fallback data");
-        const key = countryName.trim().toLowerCase();
-        setRestaurants(fallbackByCountry[key] || fallbackByCountry.egypt);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchRestaurants();
-  }, [countryName]);
-
-  useEffect(() => {
-    localStorage.setItem('restaurantFavorites', JSON.stringify(favorites));
-  }, [favorites]);
+  const isFavorite = (restaurant) =>
+    favoriteRestaurants.some(
+      (f) =>
+        f.id === restaurant.id &&
+        String(f.country || "").toLowerCase().trim() ===
+          String(countryName || "").toLowerCase().trim()
+    );
 
   const toggleFavorite = (restaurant) => {
-    setFavorites(prev => {
-      const isFavorite = prev.some(f => f.id === restaurant.id && f.name === restaurant.name);
-      if (isFavorite) {
-        return prev.filter(f => !(f.id === restaurant.id && f.name === restaurant.name));
-      } else {
-        return [...prev, { id: restaurant.id, name: restaurant.name, country: countryName }];
-      }
-    });
-  };
-
-
-  const isFavorite = (restaurant) => {
-    return favorites.some(f => f.id === restaurant.id && f.name === restaurant.name);
+    if (isFavorite(restaurant)) {
+      removeRestaurant(countryName, restaurant.id);
+    } else {
+      addRestaurant({
+        id: restaurant.id,
+        name: restaurant.name,
+        image: restaurant.image,
+        country: countryName,
+      });
+    }
   };
 
   return (
@@ -163,41 +46,34 @@ const RestaurantsSection = ({ countryName = "Egypt" }) => {
 
         {loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1,2,3].map(i => <div key={i} className="bg-white rounded-2xl h-80 animate-pulse shadow-lg"></div>)}
-          </div>
-        )}
-
-        {error && !loading && (
-          <div className="text-center py-8 bg-yellow-50 rounded-xl border border-yellow-200">
-            <p className="text-yellow-700">⚠️ {error}</p>
+            {[1, 2, 3].map(i => <div key={i} className="bg-white rounded-2xl h-80 animate-pulse shadow-lg"></div>)}
           </div>
         )}
 
         {!loading && restaurants.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {restaurants.map((r) => (
-              <div 
-                key={r.id} 
+              <div
+                key={r.id}
                 className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col"
-                data-aos="fade-up" 
+                data-aos="fade-up"
                 data-aos-delay={r.id * 50}
               >
-              
-                <div className="relative h-48 overflow-hidden flex-shrink-0">
-                  <img 
-                    src={getRestaurantImage(r.name, r.image, r.cuisine)} 
-                    alt={r.name} 
+
+                <div className="relative h-48 overflow-hidden shrink-0">
+                  <img
+                    loading="lazy"
+                    src={`/${r.image}`}
+                    alt={r.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     onError={(e) => { e.target.onerror = null; e.target.src = defaultRestaurantImage; }}
-                    loading="lazy"
                   />
-                  
-                  
+
+
                   <button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite(r); }}
-                    className={`absolute top-4 right-4 p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-200 hover:scale-110 ${
-                      isFavorite(r) ? 'text-red-500' : 'text-gray-400 hover:text-red-400'
-                    }`}
+                    className={`absolute top-4 right-4 p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-200 hover:scale-110 ${isFavorite(r) ? 'text-red-500' : 'text-gray-400 hover:text-red-400'
+                      }`}
                     aria-label={isFavorite(r) ? "Remove from favorites" : "Add to favorites"}
                   >
                     <svg className="w-5 h-5" fill={isFavorite(r) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
@@ -205,8 +81,8 @@ const RestaurantsSection = ({ countryName = "Egypt" }) => {
                     </svg>
                   </button>
                 </div>
-                
-                <div className="p-5 flex-grow flex flex-col">
+
+                <div className="p-5 grow flex flex-col">
                   {/* ⭐ السطر الأول: الاسم + الريتنج */}
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-xl font-bold text-gray-600 line-clamp-1">{r.name}</h3>
@@ -214,18 +90,18 @@ const RestaurantsSection = ({ countryName = "Egypt" }) => {
                       <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
-                      <span className="text-sm font-semibold text-gray-600">{r.rating}.0</span>
+                      <span className="text-sm font-semibold text-gray-600">{r.stars}.0</span>
                     </div>
                   </div>
-                  
+
                   {/* 🍽️ نوع الأكل (بدون خلفية دائرية - نص بسيط) */}
                   <div className="mb-3">
                     <span className="flex items-center gap-1.5 text-gray-500 text-sm">
                       <span className="text-gray-400">🍽️</span>
-                      {r.cuisine}
+                      {r.kindOfFood}
                     </span>
                   </div>
-                  
+
                   <div className="flex justify-between items-center mt-auto">
                     <div className="flex items-center gap-1.5 text-gray-500 flex-1 min-w-0">
                       <svg className="w-4 h-4 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -234,12 +110,12 @@ const RestaurantsSection = ({ countryName = "Egypt" }) => {
                       </svg>
                       <span className="text-sm line-clamp-1">{r.location}</span>
                     </div>
-                    
-                    <button 
+
+                    <button
                       className="px-5 py-2 bg-orange-600 text-white rounded-full font-semibold hover:bg-orange-700 hover:cursor-pointer transition-colors shadow-md hover:shadow-lg text-sm"
-                      onClick={() => r.socialMediaLink && window.open(r.socialMediaLink, '_blank', 'noopener,noreferrer')}
+                      onClick={() => window.open(r.instagram, '_blank', 'noopener,noreferrer')}
                     >
-                      Reserve
+                      Instagram
                     </button>
                   </div>
                 </div>

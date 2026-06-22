@@ -2,15 +2,16 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect, useRef, useState } from "react";
 
-import img2 from "../../assets/paris home.avif";
-import img1 from "../../assets/pyramidhome.jpg";
-import img3 from "../../assets/turky.jpg";
+import paris from "../../assets/banner/paris.jpg";
+import pyramids from "../../assets/banner/pyramids.jpg";
+import turkey from "../../assets/banner/turky.jpg";
 
 import { useNavigate } from "react-router-dom";
+import RoutesList from "../../utils/routesList";
 
-const images = [img1, img2, img3];
+const images = [pyramids, paris, turkey];
 
-const Hero = () => {
+const BHero = () => {
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
@@ -37,9 +38,6 @@ const Hero = () => {
   const next = () =>
     setCurrent((prev) => (prev + 1) % images.length);
 
-  const prev = () =>
-    setCurrent((prev) => (prev - 1 + images.length) % images.length);
-
   useEffect(() => {
     if (paused) return;
 
@@ -58,9 +56,10 @@ const Hero = () => {
   };
 
   const handleSearch = () => {
-    if (!destination.trim()) return;
 
-    navigate(`/country/${destination}`, {
+    // if (!destination) return;
+
+    navigate(RoutesList.Country(destination.toLowerCase() || "egypt"), {
       state: {
         country: destination,
         travelDate,
@@ -82,31 +81,16 @@ const Hero = () => {
         style={{
           backgroundImage: `url(${images[current]})`,
           backgroundSize: "cover",
-          backgroundPosition: `${50 + mouse.x * 5}% ${
-            50 + mouse.y * 5
-          }%`,
-          transform: `scale(1.1) translate(${mouse.x * 20}px, ${
-            mouse.y * 20
-          }px)`,
+          backgroundPosition: `${50 + mouse.x * 5}% ${50 + mouse.y * 5
+            }%`,
+          transform: `scale(1.1) translate(${mouse.x * 20}px, ${mouse.y * 20
+            }px)`,
         }}
       />
 
       <div className="absolute inset-0 bg-black/50 pointer-events-none"></div>
 
-      {/* arrows */}
-      <button
-        onClick={prev}
-        className="absolute left-2 sm:left-5 top-1/2 -translate-y-1/2 z-30 bg-white/20 px-3 py-2 rounded-full backdrop-blur hover:scale-110 transition"
-      >
-        ◀
-      </button>
 
-      <button
-        onClick={next}
-        className="absolute right-2 sm:right-5 top-1/2 -translate-y-1/2 z-30 bg-white/20 px-3 py-2 rounded-full backdrop-blur hover:scale-110 transition"
-      >
-        ▶
-      </button>
 
       {/* side cards */}
       <div className="hidden md:flex absolute right-4 lg:right-10 top-1/2 -translate-y-1/2 gap-3 lg:gap-4 z-20 overflow-hidden">
@@ -240,4 +224,4 @@ const Hero = () => {
   );
 };
 
-export default Hero;
+export default BHero;

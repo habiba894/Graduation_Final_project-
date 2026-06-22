@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { countryService } from "../../services/api";
+import { useEffect, useState } from "react";
+import { apiServices } from "../../services/api";
+;
 
 // 🗺️ خريطة الدول والعملات (بتتعامل مع الحروف الكبيرة والصغيرة)
 const countryToCurrency = {
@@ -33,7 +34,7 @@ const InfoSection = ({ countryName = "Egypt" }) => {
     const fetchInfo = async () => {
       try {
         // 1. جلب الطقس
-        const weatherRes = await countryService.getWeather(countryName);
+        const weatherRes = await apiServices.getWeather(countryName);
         setWeatherData(weatherRes.data);
       } catch (err) {
         console.log("⚠️ Weather API fallback");
@@ -53,7 +54,7 @@ const InfoSection = ({ countryName = "Egypt" }) => {
     setCurrencyData({ rate: initialRate, code: currencyCode });
 
     // 🔄 نحاول نجيب السعر الحقيقي من الـ API في الخلفية
-    countryService.getCurrencyRates("USD")
+    apiServices.getCurrencyRates("USD")
       .then((res) => {
         const rates = res.data?.conversion_rates || res.data?.rates || {};
         const liveRate = rates[currencyCode];

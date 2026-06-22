@@ -6,6 +6,7 @@ import "aos/dist/aos.css";
 
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./utils/routes";
+import { AuthProvider } from "./context/AuthContext";
 
 export default function App() {
   useEffect(() => {
@@ -14,36 +15,38 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <Toaster
-        position="top-right"
-        reverseOrder={false}
-        toastOptions={{
-          duration: 3000,
-          style: {
-            borderRadius: "14px",
-            background: "#fff",
-            color: "#1a3c34",
-            fontWeight: "600",
-            padding: "14px 18px",
-          },
-          success: {
-            iconTheme: {
-              primary: "#22a05a",
-              secondary: "#fff",
+      <AuthProvider>
+        <Toaster
+          position="top-right"
+          reverseOrder={false}
+          toastOptions={{
+            duration: 3000,
+            style: {
+              borderRadius: "14px",
+              background: "#fff",
+              color: "#1a3c34",
+              fontWeight: "600",
+              padding: "14px 18px",
             },
-          },
-          error: {
-            iconTheme: {
-              primary: "#e8472a",
-              secondary: "#fff",
+            success: {
+              iconTheme: {
+                primary: "#22a05a",
+                secondary: "#fff",
+              },
             },
-          },
-        }}
-      />
+            error: {
+              iconTheme: {
+                primary: "#e8472a",
+                secondary: "#fff",
+              },
+            },
+          }}
+        />
 
-      <Suspense fallback={<div />}>
-        <AppRoutes />
-      </Suspense>
+        <Suspense fallback={<div />}>
+          <AppRoutes />
+        </Suspense>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

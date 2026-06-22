@@ -12,7 +12,7 @@ import { CalendarX2, Headset, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { createPaymentSession } from "../../api/paymentApi";
-import heropic from "../../assets/aboutUs.png";
+import heropic from "../../assets/about-us.png";
 
 const accent = "#e8472a";
 const dark = "#1a3c34";
@@ -155,6 +155,7 @@ export default function SubscriptionPage() {
         }}
       >
         <img
+          loading="lazy"
           src={heropic}
           alt="WanderLust travel"
           className="absolute inset-0 w-full h-full object-cover object-center"
@@ -587,6 +588,7 @@ export default function SubscriptionPage() {
         style={{ minHeight: "400px" }}
       >
         <img
+          loading="lazy"
           src={heropic}
           alt="Explore more"
           className="absolute inset-0 w-full h-full object-cover object-center"

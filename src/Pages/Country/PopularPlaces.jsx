@@ -1,142 +1,31 @@
-import React, { useState, useEffect } from "react";
-import { countryService } from "../../services/api";
-import Egyptpopplace1 from "../../assets/Egyptpopplace1.jpg"
-import Abosembel from "../../assets/Abosembel.jpg"
-import GrandEgyptpopplace from "../../assets/Egyptpopplace2.jpg";
-import Francepopplace1 from "../../assets/Francepopplace1.jpg";
-import Francepopplace2 from "../../assets/Francepopplace2.jpg";
-import Francepopplace3 from "../../assets/Francepopplace3.jpg";
-import Turkeypop11 from "../../assets/Turkeypop11.jpg";
-import Turkeypopplace2 from "../../assets/Turkeypopplace2.jpg";
-import Turkeypopplace3 from "../../assets/Turkeypopplace3.jpg";
-
+import useFavoriteStore from "../../stores/favoriteStore";
 
 const defaultPlaceImage = "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&auto=format&fit=crop&q=80";
+const PopularPlacesSection = ({ places, countryName, loading }) => {
+  const favoritePlaces = useFavoriteStore((state) => state.places);
+  const addPlace = useFavoriteStore((state) => state.addPlace);
+  const removePlace = useFavoriteStore((state) => state.removePlace);
 
-
-const getPlaceImageUrl = (placeName) => {
-  const images = {
-    // 🇪🇬 Egypt
-    "Pyramids of Giza": Egyptpopplace1,
-    "Grand Egyptian Museum": GrandEgyptpopplace,
-    "Abu Simbel Temples": Abosembel,
-    
-    // 🇫🇷 France
-    "Eiffel Tower": Francepopplace1,
-    "Louvre Museum": Francepopplace2,
-    "Notre-Dame Cathedral": Francepopplace3,
-    
-    // 🇹🇷 Turkey
-    "Hagia Sophia": Turkeypop11,
-    "Cappadocia": Turkeypopplace3,
-    "Pamukkale": Turkeypopplace2,
-  };
-  
-  // ✅ نرجع الصورة المحلية لو المكان موجود في القائمة
-  if (images[placeName]) {
-    return images[placeName];
-  }
-  // ❌ لو مش موجود → نرجع الصورة الافتراضية
-  return defaultPlaceImage;
-};
-
-// 🌍 قاموس روابط ويكيبيديا
-const wikiLinks = {
-  // 🇪🇬 Egypt
-  "Pyramids of Giza": "https://en.wikipedia.org/wiki/Giza_pyramid_complex",
-  "Luxor Temple": "https://en.wikipedia.org/wiki/Luxor_Temple",
-  "Abu Simbel Temples": "https://en.wikipedia.org/wiki/Abu_Simbel",
-  
-  // 🇫🇷 France
-  "Eiffel Tower": "https://en.wikipedia.org/wiki/Eiffel_Tower",
-  "Louvre Museum": "https://en.wikipedia.org/wiki/Louvre",
-  "Notre-Dame Cathedral": "https://en.wikipedia.org/wiki/Notre-Dame_de_Paris",
-  
-  // 🇹🇷 Turkey
-  "Hagia Sophia": "https://en.wikipedia.org/wiki/Hagia_Sophia",
-  "Cappadocia": "https://en.wikipedia.org/wiki/Cappadocia",
-  "Pamukkale": "https://en.wikipedia.org/wiki/Pamukkale",
-};
-
-// 🗺️ دالة لإنشاء رابط Google Maps
-const getMapsLink = (placeName) => {
-  return `https://www.google.com/maps/search/${encodeURIComponent(placeName)}`;
-};
-
-// 🔗 دالة لاختيار رابط ويكيبيديا
-const getWikiLink = (placeName) => {
-  // لو المكان في قاموسنا → نرجع اللينك المحدد
-  if (wikiLinks[placeName]) {
-    return wikiLinks[placeName];
-  }
-  // لأي مكان جديد → نولد رابط ويكيبيديا ديناميكي
-  const searchQuery = encodeURIComponent(placeName);
-  return `https://en.wikipedia.org/wiki/Special:Search?search=${searchQuery}`;
-};
-
-const PopularPlacesSection = ({ countryName = "Egypt" }) => {
-  const [places, setPlaces] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  
-  const [favorites, setFavorites] = useState(() => {
-    const saved = localStorage.getItem('placeFavorites');
-    return saved ? JSON.parse(saved) : [];
-  });
-
- useEffect(() => {
-  const fetchPlaces = async () => {
-    try {
-      const countryParam = countryName.trim().toLowerCase();
-      const res = await countryService.getPopularPlaces(countryParam);
-      
-      // ✅ الحل السحري: خد الداتا من أي مكان تكون فيه
-      const placesData = res?.data || res;
-      
-      console.log("📦 Parsed places data:", placesData); // عشان تتأكدي في الكونسول
-      
-      if (Array.isArray(placesData) && placesData.length > 0) {
-        const formattedPlaces = placesData.map((place, index) => ({
-          id: place.id || index + 1,
-          name: place.name,
-          description: place.description,
-          image: getPlaceImageUrl(place.name),
-          wikiLink: getWikiLink(place.name),
-          mapsLink: getMapsLink(place.name)
-        }));
-        setPlaces(formattedPlaces);
-        setError(null);
-      } else {
-        throw new Error("No places found");
-      }
-    } catch (err) {
-      console.error("❌ Error details:", err);
-      setError("Failed to load places. Please try again later.");
-      setPlaces([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchPlaces();
-}, [countryName]);
-
-  useEffect(() => {
-    localStorage.setItem('placeFavorites', JSON.stringify(favorites));
-  }, [favorites]);
+  const isFavorite = (place) =>
+    favoritePlaces.some(
+      (f) =>
+        f.id === place.id &&
+        String(f.country || "").toLowerCase().trim() ===
+          String(countryName || "").toLowerCase().trim()
+    );
 
   const toggleFavorite = (place) => {
-    setFavorites(prev => {
-      const isFavorite = prev.some(f => f.id === place.id && f.name === place.name);
-      if (isFavorite) {
-        return prev.filter(f => !(f.id === place.id && f.name === place.name));
-      } else {
-        return [...prev, { id: place.id, name: place.name, country: countryName }];
-      }
-    });
-  };
-
-  const isFavorite = (place) => {
-    return favorites.some(f => f.id === place.id && f.name === place.name);
+    if (isFavorite(place)) {
+      removePlace(countryName, place.id);
+    } else {
+      addPlace({
+        id: place.id,
+        name: place.name,
+        image: place.image,
+        link: place.link,
+        country: countryName,
+      });
+    }
   };
 
   const handleImageError = (placeName, e) => {
@@ -161,12 +50,6 @@ const PopularPlacesSection = ({ countryName = "Egypt" }) => {
           </button>
         </div>
 
-        {error && (
-          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4" role="alert">
-            <span className="block sm:inline">⚠️ {error}</span>
-          </div>
-        )}
-
         {loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map(i => (
@@ -178,29 +61,29 @@ const PopularPlacesSection = ({ countryName = "Egypt" }) => {
         {!loading && places.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {places.map((place) => (
-              <div 
-                key={place.id} 
-                className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2" 
-                data-aos="fade-up" 
+              <div
+                key={place.id}
+                className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
+                data-aos="fade-up"
                 data-aos-delay={place.id * 100}
               >
                 <div className="relative h-64 overflow-hidden">
-                  <img 
-                    src={place.image}  // ✅ الصورة المحلية مباشرة
-                    alt={place.name} 
+                  <img
+                    loading="lazy"
+                    src={`/${place.image}`}  // ✅ الصورة المحلية مباشرة
+                    alt={place.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     onError={(e) => handleImageError(place.name, e)}
                   />
-                  
+
                   <button
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
                       toggleFavorite(place);
                     }}
-                    className={`absolute top-4 right-4 p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-200 hover:scale-110 ${
-                      isFavorite(place) ? 'text-red-500' : 'text-gray-400 hover:text-red-400'
-                    }`}
+                    className={`absolute top-4 right-4 p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-200 hover:scale-110 ${isFavorite(place) ? 'text-red-500' : 'text-gray-400 hover:text-red-400'
+                      }`}
                     aria-label={isFavorite(place) ? "Remove from favorites" : "Add to favorites"}
                   >
                     <svg className="w-5 h-5" fill={isFavorite(place) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
@@ -212,11 +95,11 @@ const PopularPlacesSection = ({ countryName = "Egypt" }) => {
                 <div className="p-6">
                   <h3 className="text-xl font-bold text-gray-600 mb-2">{place.name}</h3>
                   <p className="text-gray-600 text-sm mb-4 line-clamp-3">{place.description}</p>
-                  
+
                   <div className="flex justify-between items-center">
-                    <a 
-                      href={place.mapsLink} 
-                      target="_blank" 
+                    <a
+                      href={`https://www.google.com/maps/search/${encodeURIComponent(place.name)}`}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-orange-600 font-semibold text-sm flex items-center gap-1 hover:underline hover:cursor-pointer"
                       title={`View ${place.name} on Google Maps`}
@@ -227,10 +110,10 @@ const PopularPlacesSection = ({ countryName = "Egypt" }) => {
                       </svg>
                       Explore
                     </a>
-                    
-                    <a 
-                      href={place.wikiLink} 
-                      target="_blank" 
+
+                    <a
+                      href={place.link}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="px-5 py-2 bg-orange-600 text-white rounded-full font-semibold hover:bg-orange-700 hover:cursor-pointer transition-colors shadow-md hover:shadow-lg text-sm flex items-center gap-1"
                       title={`Learn more about ${place.name}`}
@@ -246,9 +129,9 @@ const PopularPlacesSection = ({ countryName = "Egypt" }) => {
             ))}
           </div>
         )}
-        
+
         {/* ✅ رسالة لو مفيش أماكن */}
-        {!loading && places.length === 0 && !error && (
+        {!loading && places.length === 0 && (
           <div className="text-center py-12 bg-white rounded-2xl shadow-lg">
             <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
