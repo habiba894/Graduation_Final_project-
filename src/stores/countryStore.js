@@ -9,7 +9,7 @@ const initialState = {
 };
 
 const useCountryStore = create((set) => ({
-    countryDetails: initialState,
+    countryDetails: null,
 
     setCountryDetails: (data) =>
         set({ countryDetails: data, }),
