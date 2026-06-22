@@ -112,12 +112,24 @@ const useTripPlanStore = create((set, get) => ({
 
         set({ isSaving: true });
         try {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+
+            const endDate = new Date(tomorrow);
+            endDate.setDate(endDate.getDate() + 3);
+
             const payload = {
                 userId: defaults.userId,
                 destination: plan.destination,
                 planName: plan.planName || `Trip to ${plan.destination}`,
-                startDate: plan.startDate || defaults.startDate || new Date().toISOString().slice(0, 10),
-                endDate: plan.endDate || defaults.endDate || new Date().toISOString().slice(0, 10),
+                startDate:
+                    plan.startDate ||
+                    defaults.startDate ||
+                    tomorrow.toISOString().slice(0, 10),
+                endDate:
+                    plan.endDate ||
+                    defaults.endDate ||
+                    endDate.toISOString().slice(0, 10),
                 note: plan.note || "",
             };
 

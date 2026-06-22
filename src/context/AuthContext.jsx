@@ -2,15 +2,34 @@ import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext(null);
 
+const splitName = (rawName) => {
+  const trimmed = (rawName || "").trim();
+  if (!trimmed) return { firstName: "", lastName: "" };
+
+  const hyphenParts = trimmed.split("-").map((p) => p.trim()).filter(Boolean);
+  if (hyphenParts.length > 1) {
+    return {
+      firstName: hyphenParts[0] || "",
+      lastName: hyphenParts.slice(1).join(" ") || "",
+    };
+  }
+
+  const spaceParts = trimmed.split(/\s+/);
+  return {
+    firstName: spaceParts[0] || "",
+    lastName: spaceParts.slice(1).join(" ") || "",
+  };
+};
+
 const parseUser = (u) => {
   if (!u) return null;
   const parsed = { ...u };
 
   // Parse name to get firstName and lastName
   if (parsed.name && !parsed.firstName && !parsed.lastName) {
-    const parts = parsed.name.trim().split(/\s+/);
-    parsed.firstName = parts[0] || "";
-    parsed.lastName = parts.slice(1).join(" ") || "";
+    const { firstName, lastName } = splitName(parsed.name);
+    parsed.firstName = firstName;
+    parsed.lastName = lastName;
   }
 
   // If we have firstName and lastName, combine them as firstName lastName
@@ -19,10 +38,10 @@ const parseUser = (u) => {
   } else if (parsed.firstName) {
     parsed.name = parsed.firstName;
   } else if (parsed.name) {
+    const { firstName, lastName } = splitName(parsed.name);
     parsed.name = parsed.name.trim();
-    const parts = parsed.name.split(/\s+/);
-    parsed.firstName = parts[0] || "";
-    parsed.lastName = parts.slice(1).join(" ") || "";
+    parsed.firstName = firstName;
+    parsed.lastName = lastName;
   }
 
   // Remove location and phone from cached storage/state

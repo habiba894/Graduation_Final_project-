@@ -855,6 +855,7 @@ export default function TripPlanPage() {
   // ------------------------------------------------------
 
   const handleAddToTrip = (item, sourceCategory) => {
+    console.log(user?.id)
     addPlace(item, sourceCategory, { userId: user?.id });
   };
 
