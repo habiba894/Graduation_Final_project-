@@ -1,8 +1,8 @@
 import { lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import ProtectedRoute from "../components/ProtectedRoute";
 import Layout from "../layouts/MainLayout";
 import RoutesList from "./routesList";
-import ProtectedRoute from "../components/ProtectedRoute";
 
 
 const Home = lazy(() => import("../pages/home/Home"));
@@ -39,6 +39,7 @@ export default function AppRoutes() {
                 <Route path={RoutesList.TripPlanRoute} element={<TripPlan />} />
                 <Route path={RoutesList.CountryRoute} element={<CountryPage />} />
                 <Route path={RoutesList.Subscription} element={<Subscription />} />
+                <Route path={RoutesList.TripPlannedRoute} element={<TripPlan />} />
             </Route>
 
             <Route path="*" element={<Navigate to={RoutesList.Home} replace />} />
