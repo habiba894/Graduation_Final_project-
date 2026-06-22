@@ -24,6 +24,7 @@ export default function ProfilePage() {
     isPremium: cachedUser?.isPremium || false,
     memberSince: cachedUser?.memberSince || "",
   });
+  const{user}=useAuth();
 
   // ======================================================
   // OTHER STATES
@@ -91,7 +92,7 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const trips = await plansService.getUserPlans("226e46be-d900-49db-b3c1-fab442598a5e");
+        const trips = await plansService.getUserPlans(user.id);
         console.log(trips)
         setTripPlans(trips || []);
       } catch (error) {
@@ -102,7 +103,7 @@ export default function ProfilePage() {
     };
 
     fetchProfileData();
-  }, []);
+  }, [user]);
 
   // ======================================================
   // SAVE PROFILE

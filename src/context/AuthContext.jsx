@@ -80,6 +80,7 @@ export function AuthProvider({ children }) {
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("favorites-storage");
     setToken(null);
     setUser(null);
   };
