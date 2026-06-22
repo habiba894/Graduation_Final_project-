@@ -1,17 +1,12 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import bg from "../../assets/profile-bg.jpg";
 import { useAuth } from "../../context/AuthContext";
-import { profileService } from "../../services/api";
+import countryData from "../../data/country_data";
+import { plansService, profileService } from "../../services/api";
 import useFavoriteStore from "../../stores/favoriteStore";
+import RoutesList from "../../utils/routesList";
 
-// ======================================================
-// IMPORT SERVICES
-// ======================================================
-
-
-// ======================================================
-// PROFILE PAGE
-// ======================================================
 
 export default function ProfilePage() {
   const { user: cachedUser, updateUser } = useAuth();
@@ -56,30 +51,37 @@ export default function ProfilePage() {
   // FETCH PROFILE DATA
   // ======================================================
 
-  const fetchProfileData = async () => {
-    try {
-      const user = await profileService.getUserProfile();
 
-      const freshUserData = {
-        firstName: user.firstName || user.name?.split("-")[0] || user.name?.split(" ")[0] || "",
-        lastName: user.lastName || user.name?.split("-").slice(1).join("-") || user.name?.split(" ").slice(1).join(" ") || "",
-        email: user.email || "",
-        password: user.password || "",
-        profileImage: user.profileImage || "",
-        isPremium: user.isPremium || false,
-        memberSince: user.memberSince || "",
-      };
 
-      setUserData(freshUserData);
-      updateUser(freshUserData);
+  const formatDateRange = (startDate, endDate) => {
+    if (!startDate) return "";
+    const opts = { month: "short", day: "numeric" };
+    const start = new Date(startDate).toLocaleDateString("en-US", opts);
+    if (!endDate) return start;
+    const end = new Date(endDate).toLocaleDateString("en-US", opts);
+    return `${start} - ${end}`;
+  };
 
-      const trips = await profileService.getUserTrips();
-      setTripPlans(trips || []);
-    } catch (error) {
-      console.log("PROFILE ERROR:", error);
-    } finally {
-      setLoading(false);
-    }
+  const formatTripForCard = (trip) => {
+    const destinationKey = (trip.destination || "").toLowerCase().trim();
+    const country = countryData[destinationKey];
+
+    const placesList = Array.isArray(trip.places) ? trip.places : [];
+    const counts = placesList.reduce((acc, p) => {
+      const category = p.category || "Place";
+      acc[category] = (acc[category] || 0) + 1;
+      return acc;
+    }, {});
+
+    return {
+      id: trip.id,
+      title: trip.planName || (country ? `Trip to ${country.title}` : "Trip"),
+      image: country?.images?.[0] ? `/${country.images[0]}` : null,
+      date: formatDateRange(trip.startDate, trip.endDate),
+      location: country?.title || trip.destination || "",
+      placesCount: placesList.length,
+      categoryCounts: counts,
+    };
   };
 
   // ======================================================
@@ -87,6 +89,18 @@ export default function ProfilePage() {
   // ======================================================
 
   useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const trips = await plansService.getUserPlans("226e46be-d900-49db-b3c1-fab442598a5e");
+        console.log(trips)
+        setTripPlans(trips || []);
+      } catch (error) {
+        console.log("PROFILE ERROR:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchProfileData();
   }, []);
 
@@ -146,7 +160,7 @@ export default function ProfilePage() {
         handleImageUpload={handleImageUpload}
       />
 
-      <main className="max-w-7xl mx-auto px-6 pb-16 relative z-20 mt-[-80px]">
+      <main className="max-w-7xl mx-auto px-6 pb-16 relative z-20 -mt-20">
         {/* 📊 Stats Dashboard Bar */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <StatCard title="Trips Planned" value={tripPlans.length} icon="✈️" />
@@ -171,7 +185,7 @@ export default function ProfilePage() {
         {tripPlans.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mt-6">
             {tripPlans.map((trip) => (
-              <TripCard key={trip.id} trip={trip} />
+              <TripCard key={trip.id} trip={formatTripForCard(trip)} />
             ))}
           </div>
         ) : (
@@ -240,8 +254,8 @@ export default function ProfilePage() {
 // ======================================================
 
 function ProfileHero({ userData, handleImageUpload }) {
-  const combinedName = userData.firstName && userData.lastName 
-    ? `${userData.firstName} ${userData.lastName}` 
+  const combinedName = userData.firstName && userData.lastName
+    ? `${userData.firstName} ${userData.lastName}`
     : (userData.firstName || "Explorer");
 
   const getInitials = () => {
@@ -424,11 +438,10 @@ function InputField({ label, value, disabled, onChange, icon }) {
         value={value}
         disabled={disabled}
         onChange={onChange}
-        className={`w-full rounded-2xl px-5 py-3.5 outline-none border transition-all duration-200 text-gray-700 font-medium ${
-          disabled
-            ? "bg-gray-50 border-gray-100 cursor-not-allowed"
-            : "bg-white border-orange-200 focus:border-[#d14b30] focus:ring-4 focus:ring-orange-500/10"
-        }`}
+        className={`w-full rounded-2xl px-5 py-3.5 outline-none border transition-all duration-200 text-gray-700 font-medium ${disabled
+          ? "bg-gray-50 border-gray-100 cursor-not-allowed"
+          : "bg-white border-orange-200 focus:border-[#d14b30] focus:ring-4 focus:ring-orange-500/10"
+          }`}
       />
     </div>
   );
@@ -495,35 +508,56 @@ function SectionHeader({ title }) {
 // TRIP CARD
 // ======================================================
 
+const defaultTripImage = "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&auto=format&fit=crop&q=80";
+
 function TripCard({ trip }) {
+  const categoryLabels = { Hotel: "🏨", Restaurant: "🍽️", "Popular Place": "📍" };
+  const breakdown = Object.entries(trip.categoryCounts || {});
+
   return (
-    <div className="bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-xl hover:scale-[1.02] transition duration-300 border border-gray-100 flex flex-col text-left">
-      <div className="relative overflow-hidden h-48">
-        <img
-          src={trip.image}
-          alt={trip.title}
-          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-        />
-        <div className="absolute bottom-3 left-3 bg-[#1a3c34]/80 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-full">
-          ✈️ Planned
+    <Link to={RoutesList.TripPlanned(trip.id)}>
+      <div className="bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-xl hover:scale-[1.02] transition duration-300 border border-gray-100 flex flex-col text-left">
+        <div className="relative overflow-hidden h-48">
+          <img
+            src={trip.image || defaultTripImage}
+            alt={trip.title}
+            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+            onError={(e) => { e.target.onerror = null; e.target.src = defaultTripImage; }}
+          />
+          <div className="absolute bottom-3 left-3 bg-[#1a3c34]/80 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-full">
+            ✈️ Planned
+          </div>
         </div>
-      </div>
 
-      <div className="p-5 flex-grow flex flex-col justify-between">
-        <div>
-          <h3 className="text-lg font-bold text-gray-800 line-clamp-1">
-            {trip.title}
-          </h3>
-          <p className="text-gray-400 text-xs mt-1.5 flex items-center gap-1 font-semibold">
-            <span>🗓️</span> {trip.date}
+        <div className="p-5 flex-grow flex flex-col justify-between">
+          <div>
+            <h3 className="text-lg font-bold text-gray-800 line-clamp-1">
+              {trip.title}
+            </h3>
+            <p className="text-gray-400 text-xs mt-1.5 flex items-center gap-1 font-semibold">
+              <span>🗓️</span> {trip.date}
+            </p>
+          </div>
+
+          <p className="text-gray-600 font-semibold mt-4 text-sm flex items-center gap-1">
+            <span className="text-[#d14b30]">📍</span> {trip.location}
           </p>
-        </div>
 
-        <p className="text-gray-600 font-semibold mt-4 text-sm flex items-center gap-1">
-          <span className="text-[#d14b30]">📍</span> {trip.location}
-        </p>
+          {breakdown.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {breakdown.map(([category, count]) => (
+                <span
+                  key={category}
+                  className="text-xs font-semibold bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full flex items-center gap-1"
+                >
+                  {categoryLabels[category] || "•"} {count}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
