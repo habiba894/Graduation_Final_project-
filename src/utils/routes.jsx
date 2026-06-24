@@ -10,9 +10,9 @@ const Login = lazy(() => import("../Pages/auth/Login"));
 const Signup = lazy(() => import("../Pages/auth/Signup"));
 const CountryPage = lazy(() => import("../Pages/Country/Country"));
 const ProfilePage = lazy(() => import("../Pages/Profile/Profile"));
-const TripPlan = lazy(() => import("../pages/trip-plan/TripPlan"));
-const Subscription = lazy(() => import("../pages/subscription/Subscriptionpage"));
-const PremiumPage = lazy(() => import("../pages/premium/Premium"));
+const TripPlan = lazy(() => import("../Pages/trip-plan/TripPlan"));
+const Subscription = lazy(() => import("../Pages/subscription/Subscriptionpage"));
+const PremiumPage = lazy(() => import("../Pages/premium/Premium"));
 
 export default function AppRoutes() {
     return (
