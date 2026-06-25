@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://designing-unworried-left.ngrok-free.dev",
+ baseURL: "https://wanderlust-app-eh3t.onrender.com",
   timeout: 20000,
   headers: {
     "Content-Type": "application/json",

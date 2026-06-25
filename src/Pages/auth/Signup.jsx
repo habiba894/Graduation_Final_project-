@@ -82,7 +82,6 @@ const Signup = () => {
           confirmPassword: values.confirmPassword
         });
 
-        // Save token & user, redirect to Home
         const { accessToken, user } = res.data;
         login(accessToken, user);
         navigate("/home");
@@ -93,7 +92,6 @@ const Signup = () => {
           "Registration failed. Please check your information.";
         setApiError(message);
 
-        // Shake the form on error
         const form = document.querySelector("form");
         if (form) {
           form.animate([
@@ -134,9 +132,6 @@ const Signup = () => {
     return "Strong";
   };
 
-  // const getStrengthWidth = () => {
-  //   return `${(passwordStrength / 6) * 100}%`;
-  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-gray-100 flex items-center justify-center p-4">

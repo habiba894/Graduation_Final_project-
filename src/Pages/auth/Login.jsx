@@ -6,7 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import * as yup from "yup";
 import pyramids from "../../assets/auth/signin.jpg";
 import { useAuth } from "../../context/AuthContext";
-import { apiServices } from "../../services/api"; // ✅ استدعاء الـ API
+import { apiServices } from "../../services/api"; 
 import RoutesList from "../../utils/routesList";
 
 // Validation Schema
@@ -30,9 +30,9 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [apiError, setApiError] = useState(""); // ✅ رسالة خطأ من الـ API
+  const [apiError, setApiError] = useState(""); 
 
-  // Mouse follow effect
+  
   useEffect(() => {
     const handleMouseMove = (e) => {
       setMousePosition({
@@ -53,27 +53,22 @@ const Login = () => {
       setApiError("");
 
       try {
-        // ✅ نادى الـ API الحقيقي
         const res = await apiServices.login({
           email: values.email,
           password: values.password,
         });
 
-        // ✅ احفظي التوكن واليوزر في الكونتكست
         const { accessToken, user } = res.data;
         login(accessToken, user);
 
-        // ✅ توجهي للصفحة الرئيسية
         navigate("/home");
 
       } catch (err) {
-        // ❌ اعرضي رسالة الخطأ من الـ API
         const message = err.response?.data?.message ||
           err.message ||
           "Login failed. Please check your credentials.";
         setApiError(message);
 
-        // هز الفورم كأنه "غلطة" 🎭
         const form = document.querySelector("form");
         if (form) {
           form.animate([
@@ -89,7 +84,6 @@ const Login = () => {
     },
   });
 
-  // أنيميشن العناصر
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {

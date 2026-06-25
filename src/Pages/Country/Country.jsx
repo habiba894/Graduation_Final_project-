@@ -1,5 +1,4 @@
 import { useParams } from "react-router-dom";
-
 import { useEffect, useState } from "react";
 import { apiServices } from "../../services/api";
 import useCountryStore from "../../stores/countryStore";

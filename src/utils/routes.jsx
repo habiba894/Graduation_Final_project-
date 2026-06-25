@@ -5,13 +5,13 @@ import Layout from "../layouts/MainLayout";
 import RoutesList from "./routesList";
 
 
-const Home = lazy(() => import("../pages/home/Home"));
-const Login = lazy(() => import("../pages/auth/Login"));
-const Signup = lazy(() => import("../pages/auth/Signup"));
-const CountryPage = lazy(() => import("../pages/country/Country"));
-const ProfilePage = lazy(() => import("../pages/profile/Profile"));
-const TripPlan = lazy(() => import("../pages/trip-plan/TripPlan"));
-const Subscription = lazy(() => import("../pages/subscription/Subscriptionpage"));
+const Home = lazy(() => import("../Pages/Home/Home"));
+const Login = lazy(() => import("../Pages/auth/Login"));
+const Signup = lazy(() => import("../Pages/auth/Signup"));
+const CountryPage = lazy(() => import("../Pages/Country/Country"));
+const ProfilePage = lazy(() => import("../Pages/Profile/Profile"));
+const TripPlan = lazy(() => import("../Pages/trip-plan/TripPlan"));
+const Subscription = lazy(() => import("../Pages/subscription/Subscriptionpage"));
 const PremiumPage = lazy(() => import("../pages/premium/Premium"));
 
 export default function AppRoutes() {

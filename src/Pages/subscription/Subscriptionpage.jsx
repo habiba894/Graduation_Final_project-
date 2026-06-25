@@ -1,18 +1,20 @@
+import React, { useEffect, useState } from "react";
+import { createPaymentSession } from "../../api/paymentApi";
+import toast from "react-hot-toast";
 import {
-  ArrowRightIcon,
-  CalendarDaysIcon,
-  MapPinIcon,
+  ShieldCheckIcon,
+  ArrowPathIcon,
+  DevicePhoneMobileIcon,
   MinusIcon,
-  SparklesIcon
+  SparklesIcon,
+  CalendarDaysIcon,
+  ArrowRightIcon,
+  MapPinIcon,
 } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as CheckCircleSolid } from "@heroicons/react/24/solid";
+import heropic from "../../assets/about-us.png";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { CalendarX2, Headset, ShieldCheck } from "lucide-react";
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { createPaymentSession } from "../../api/paymentApi";
-import heropic from "../../assets/about-us.png";
 
 const accent = "#e8472a";
 const dark = "#1a3c34";
@@ -34,23 +36,22 @@ const compareRows = [
 
 const trustItems = [
   {
-    icon: <ShieldCheck className="w-5 h-5" style={{ color: accent }} />,
+    Icon: ShieldCheckIcon,
     title: "Secure Payment",
     desc: "Your payment is safe with us.",
   },
   {
-    icon: <CalendarX2 className="w-5 h-5" style={{ color: accent }} />,
+    Icon: ArrowPathIcon,
     title: "Cancel Anytime",
     desc: "Change or cancel your plan at any time.",
   },
   {
-    icon: <Headset className="w-5 h-5" style={{ color: accent }} />,
+    Icon: DevicePhoneMobileIcon,
     title: "24 / 7 Support",
     desc: "We are here to help you anytime.",
   },
 ];
 
-// 🔄 Spinner Component for loading states
 const Spinner = () => (
   <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
     <circle
@@ -84,64 +85,56 @@ export default function SubscriptionPage() {
   const weeklyPrice = billing === "monthly" ? 10 : 8;
   const monthlyPrice = billing === "monthly" ? 20 : 16;
 
-  // 💳 Payment Handler
-  const handlePayment = async (planType, amount) => {
-    try {
-      setPaymentLoading(planType);
+const handlePayment = async (planType, amount) => {
+  try {
+    setPaymentLoading(planType);
 
-      const storedUser =
-        JSON.parse(localStorage.getItem("user")) ||
-        JSON.parse(sessionStorage.getItem("user"));
+    const storedUser =
+      JSON.parse(localStorage.getItem("user")) ||
+      JSON.parse(sessionStorage.getItem("user"));
 
-      if (!storedUser) {
-        toast.error("Please login first");
-        return;
-      }
-
-      const userId = storedUser._id || storedUser.id || storedUser.userId;
-
-      if (!userId) {
-        toast.error("User ID not found");
-        return;
-      }
-
-      const token =
-        localStorage.getItem("token") ||
-        sessionStorage.getItem("token");
-
-      const payload = {
-        userId,
-        planType,
-        amount,
-      };
-
-      const data = await createPaymentSession(payload, token);
-
-      const paymentUrl =
-        data?.paymentUrl ||
-        data?.url ||
-        data?.sessionUrl ||
-        data?.data?.paymentUrl;
-
-      if (paymentUrl) {
-        toast.success("Redirecting to payment...");
-        window.location.href = paymentUrl;
-        return;
-      }
-
-      toast.success(data?.message || "Payment session created");
-    } catch (error) {
-      console.error("Payment error:", error);
-      const message =
-        error?.response?.data?.message ||
-        error?.response?.data?.error ||
-        error?.message ||
-        "Payment failed";
-      toast.error(message);
-    } finally {
-      setPaymentLoading(null);
+    if (!storedUser) {
+      toast.error("Please login first");
+      return;
     }
-  };
+
+    const userId =
+      storedUser?._id ||
+      storedUser?.id ||
+      storedUser?.userId;
+
+    if (!userId) {
+      toast.error("User ID not found");
+      return;
+    }
+
+    const response = await createPaymentSession({
+      userId,
+      planType,
+      amount,
+    });
+
+    console.log("Payment Session Response:", response);
+
+    const paymentUrl = response?.paymentUrl;
+
+    if (!paymentUrl) {
+      throw new Error("Payment URL not received");
+    }
+
+    window.location.href = paymentUrl;
+  } catch (error) {
+    console.error("Payment Error:", error);
+
+    toast.error(
+      error?.response?.data?.message ||
+      error?.message ||
+      "Payment failed"
+    );
+  } finally {
+    setPaymentLoading(null);
+  }
+};
 
   return (
     <div className="min-h-screen bg-white font-sans overflow-x-hidden">
@@ -155,7 +148,6 @@ export default function SubscriptionPage() {
         }}
       >
         <img
-          loading="lazy"
           src={heropic}
           alt="WanderLust travel"
           className="absolute inset-0 w-full h-full object-cover object-center"
@@ -242,7 +234,6 @@ export default function SubscriptionPage() {
           </h1>
         </div>
 
-        {/* Bottom fade */}
         <div
           className="absolute bottom-0 left-0 right-0 h-28"
           style={{
@@ -252,7 +243,6 @@ export default function SubscriptionPage() {
         />
       </div>
 
-      {/* 📦 MAIN CONTENT */}
       <div className="max-w-3xl mx-auto px-4 pt-4 pb-24">
         <div className="text-center mb-10" data-aos="fade-up">
           <h2
@@ -266,7 +256,6 @@ export default function SubscriptionPage() {
           </p>
         </div>
 
-        {/* 💱 Billing Toggle */}
         <div
           data-aos="zoom-in"
           className="flex items-center justify-center gap-3 mb-12"
@@ -286,10 +275,10 @@ export default function SubscriptionPage() {
                 style={
                   billing === b
                     ? {
-                      backgroundColor: "#fff",
-                      color: dark,
-                      boxShadow: "0 2px 10px rgba(0,0,0,0.10)",
-                    }
+                        backgroundColor: "#fff",
+                        color: dark,
+                        boxShadow: "0 2px 10px rgba(0,0,0,0.10)",
+                      }
                     : { color: "#999" }
                 }
               >
@@ -309,9 +298,7 @@ export default function SubscriptionPage() {
           )}
         </div>
 
-        {/* 💳 Plan Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-14">
-          {/* Weekly Plan */}
           <div
             data-aos="fade-right"
             className="rounded-3xl border p-8 flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-xl group"
@@ -386,7 +373,6 @@ export default function SubscriptionPage() {
             </button>
           </div>
 
-          {/* Monthly Plan — Featured */}
           <div
             data-aos="fade-left"
             className="rounded-3xl p-8 flex flex-col relative overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl group"
@@ -477,7 +463,6 @@ export default function SubscriptionPage() {
           </div>
         </div>
 
-        {/* 📊 Compare Plans Table */}
         <div
           data-aos="fade-up"
           className="rounded-3xl border p-8 mb-14"
@@ -548,7 +533,7 @@ export default function SubscriptionPage() {
 
         {/* 🛡️ Trust Bar */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          {trustItems.map(({ icon, title, desc }, i) => (
+          {trustItems.map(({ Icon, title, desc }, i) => (
             <div
               key={title}
               data-aos="zoom-in-up"
@@ -562,8 +547,11 @@ export default function SubscriptionPage() {
                   backgroundColor: "#fff5f3",
                   border: "1px solid #fdd5cc",
                 }}
-              > {icon}
-
+              >
+                <Icon
+                  className="w-5 h-5"
+                  style={{ color: accent }}
+                />
               </div>
               <div>
                 <p
@@ -581,14 +569,12 @@ export default function SubscriptionPage() {
         </div>
       </div>
 
-      {/* 🚀 CTA Section */}
       <div
         data-aos="fade-up"
         className="relative w-full overflow-hidden"
         style={{ minHeight: "400px" }}
       >
         <img
-          loading="lazy"
           src={heropic}
           alt="Explore more"
           className="absolute inset-0 w-full h-full object-cover object-center"
