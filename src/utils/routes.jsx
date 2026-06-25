@@ -36,12 +36,12 @@ export default function AppRoutes() {
                         <PremiumPage />
                     </ProtectedRoute>
                 } />
-                                 
-  <Route path={RoutesList.TripPlanRoute} element={
-     <ProtectedRoute>
-    <TripPlan />
-               </ProtectedRoute>
-    } />       
+
+                <Route path={RoutesList.TripPlanRoute} element={
+                    <ProtectedRoute>
+                        <TripPlan />
+                    </ProtectedRoute>
+                } />
 
                 <Route path={RoutesList.CountryRoute} element={<CountryPage />} />
                 <Route path={RoutesList.Subscription} element={<Subscription />} />

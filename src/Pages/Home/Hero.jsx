@@ -8,21 +8,24 @@ import turkey from "../../assets/banner/turky.jpg";
 
 import { useNavigate } from "react-router-dom";
 import RoutesList from "../../utils/routesList";
+import HeroSlider from "./HeroSlider";
 
 const images = [pyramids, paris, turkey];
 
-const BHero = () => {
-  const [current, setCurrent] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+const DESTINATIONS = [
+  { name: "Egypt", flag: "🇪🇬" },
+  { name: "France", flag: "🇫🇷" },
+  { name: "Turkey", flag: "🇹🇷" },
+];
 
+const BHero = () => {
   const [destination, setDestination] = useState("");
   const [travelDate, setTravelDate] = useState("");
   const [budget, setBudget] = useState("");
+  const [destinationOpen, setDestinationOpen] = useState(false);
 
   const navigate = useNavigate();
-
-  const intervalRef = useRef(null);
+  const destinationRef = useRef(null);
 
   useEffect(() => {
     AOS.init({
@@ -31,29 +34,18 @@ const BHero = () => {
     });
   }, []);
 
+  // close the destination dropdown when clicking outside of it
   useEffect(() => {
-    AOS.refresh();
-  }, [current]);
-
-  const next = () =>
-    setCurrent((prev) => (prev + 1) % images.length);
-
-  useEffect(() => {
-    if (paused) return;
-
-    intervalRef.current = setInterval(next, 4000);
-
-    return () => clearInterval(intervalRef.current);
-  }, [paused]);
-
-  const handleMouseMove = (e) => {
-    const { innerWidth, innerHeight } = window;
-
-    const x = (e.clientX / innerWidth - 0.5) * 2;
-    const y = (e.clientY / innerHeight - 0.5) * 2;
-
-    setMouse({ x, y });
-  };
+    const handleOutsideClick = (e) => {
+      if (destinationRef.current && !destinationRef.current.contains(e.target)) {
+        setDestinationOpen(false);
+      }
+    };
+    if (destinationOpen) {
+      document.addEventListener("click", handleOutsideClick);
+    }
+    return () => document.removeEventListener("click", handleOutsideClick);
+  }, [destinationOpen]);
 
   const handleSearch = () => {
 
@@ -69,57 +61,12 @@ const BHero = () => {
   };
 
   return (
-    <div
-      className="relative h-screen flex flex-col justify-center px-4 sm:px-6 md:px-12 text-white overflow-hidden"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onMouseMove={handleMouseMove}
-    >
-      {/* background */}
-      <div
-        className="absolute inset-0 transition-all duration-1200 ease-out"
-        style={{
-          backgroundImage: `url(${images[current]})`,
-          backgroundSize: "cover",
-          backgroundPosition: `${50 + mouse.x * 5}% ${50 + mouse.y * 5
-            }%`,
-          transform: `scale(1.1) translate(${mouse.x * 20}px, ${mouse.y * 20
-            }px)`,
-        }}
-      />
-
-      <div className="absolute inset-0 bg-black/50 pointer-events-none"></div>
-
-
-
-      {/* side cards */}
-      <div className="hidden md:flex absolute right-4 lg:right-10 top-1/2 -translate-y-1/2 gap-3 lg:gap-4 z-20 overflow-hidden">
-        {images.map((img, i) => {
-          const index = (current + i + 1) % images.length;
-
-          return (
-            <div
-              key={i}
-              onClick={() => setCurrent(index)}
-              className="cursor-pointer w-20 sm:w-24 md:w-28 lg:w-32 h-32 sm:h-40 md:h-48 lg:h-56 rounded-2xl bg-cover bg-center shadow-xl transition-all duration-500"
-              style={{
-                backgroundImage: `url(${images[index]})`,
-                transform: `
-                  translateY(${mouse.y * 10}px)
-                  scale(${1 - i * 0.1})
-                `,
-                opacity: 1 - i * 0.3,
-              }}
-            />
-          );
-        })}
-      </div>
+    <div className="relative h-screen flex flex-col justify-center px-4 sm:px-6 md:px-12 text-white overflow-hidden">
+      {/* background + side thumbnails — isolated, never re-renders this component */}
+      <HeroSlider images={images} />
 
       {/* content */}
-      <div
-        key={current}
-        className="relative z-30 max-w-full md:max-w-175"
-      >
+      <div className="relative z-30 max-w-full md:max-w-175">
         <h1
           data-aos="fade-up"
           data-aos-delay="100"
@@ -150,20 +97,58 @@ const BHero = () => {
           data-aos-delay="500"
           className="mt-10 sm:mt-12 md:mt-15 bg-white text-black p-3 md:p-4 rounded-2xl flex flex-col md:flex-row items-stretch md:items-center gap-3 shadow-lg w-full max-w-md sm:max-w-lg md:max-w-xl"
         >
-          {/* destination */}
-          <div className="flex-1 px-2 border-b md:border-b-0 md:border-r border-gray-200">
+          {/* destination dropdown */}
+          <div
+            ref={destinationRef}
+            className="relative flex-1 px-2 border-b md:border-b-0 md:border-r border-gray-200"
+          >
             <p className="text-xs text-teal-900 text-start">
               Destination
             </p>
 
-            <input
-              className="w-full outline-none text-sm"
-              placeholder="Where are you going?"
-              value={destination}
-              onChange={(e) =>
-                setDestination(e.target.value)
-              }
-            />
+            <button
+              type="button"
+              onClick={() => setDestinationOpen((prev) => !prev)}
+              className="w-full flex items-center justify-between gap-2 text-sm text-left py-0.5"
+            >
+              <span className={destination ? "text-black" : "text-gray-400"}>
+                {destination
+                  ? `${DESTINATIONS.find((d) => d.name === destination)?.flag || ""} ${destination}`
+                  : "Where are you going?"}
+              </span>
+              <svg
+                className={`w-3.5 h-3.5 text-gray-400 shrink-0 transition-transform duration-200 ${destinationOpen ? "rotate-180" : ""
+                  }`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {destinationOpen && (
+              <div className="absolute left-0 top-full mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl py-1.5 z-50">
+                {DESTINATIONS.map((d) => (
+                  <button
+                    key={d.name}
+                    type="button"
+                    onClick={() => {
+                      setDestination(d.name);
+                      setDestinationOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-2.5 text-left px-3.5 py-2 text-sm transition ${destination === d.name
+                        ? "bg-[#d14b30]/10 text-[#d14b30] font-semibold"
+                        : "text-gray-700 hover:bg-gray-50"
+                      }`}
+                  >
+                    <span className="text-base">{d.flag}</span>
+                    {d.name}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* date */}

@@ -57,7 +57,7 @@ const useFavoriteStore = create(
       addRestaurant: (restaurant) =>
         set((state) => ({
           restaurants: state.restaurants.some((item) =>
-            matchesItem(item, restaurant.country, restaurant.idgit checkout -b v1),
+            matchesItem(item, restaurant.country, restaurant.id),
           )
             ? state.restaurants
             : [...state.restaurants, restaurant],

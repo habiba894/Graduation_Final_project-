@@ -1,7 +1,7 @@
 // src/components/premium/PackingAssistant.jsx
 import { useState } from "react";
-import { FaSuitcaseRolling, FaCheckCircle, FaLightbulb } from "react-icons/fa";
-import { generatePackingList, COUNTRIES } from "../../utils/premiumData";
+import { FaCheckCircle, FaLightbulb, FaSuitcaseRolling } from "react-icons/fa";
+import { COUNTRIES, generatePackingList } from "../../utils/premiumData";
 
 const PackingAssistant = () => {
   const [country, setCountry] = useState("France");
@@ -12,8 +12,6 @@ const PackingAssistant = () => {
 
   const handleGenerate = () => {
     setLoading(true);
-    // Simulated short delay so the button feels responsive; replace with
-    // a real async call (API/AI) later — UI state handling stays the same.
     setTimeout(() => {
       setResult(generatePackingList({ country, startDate, endDate }));
       setLoading(false);
@@ -114,7 +112,7 @@ const PackingAssistant = () => {
             </div>
           </div>
 
-          <div className="flex items-start gap-2.5 md:max-w-[220px] md:border-l md:border-purple-100 md:pl-5">
+          <div className="flex items-start gap-2.5 md:max-w-55 md:border-l md:border-purple-100 md:pl-5">
             <FaLightbulb className="text-yellow-500 text-lg shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-bold text-gray-800">Advice</p>

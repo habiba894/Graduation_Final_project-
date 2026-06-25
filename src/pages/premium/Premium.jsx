@@ -38,22 +38,22 @@ const Premium = () => {
     <div className="w-full bg-gray-50 min-h-screen pb-16">
       {/* 🍞 Toast */}
       {toast && (
-        <div className="fixed top-20 right-4 z-[200] bg-gray-900 text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-xl animate-fade-in">
+        <div className="fixed top-20 right-4 z-200 bg-gray-900 text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-xl animate-fade-in">
           {toast}
         </div>
       )}
 
       {/* Hero */}
       <div className="relative w-full">
-        <div className="relative h-[300px] sm:h-[360px] md:h-[420px] w-full overflow-hidden">
+        <div className="relative h-75 sm:h-90 md:h-105 w-full overflow-hidden">
           <img
             src={premiumBg}
             alt="Cairo skyline at sunset"
             className="absolute inset-0 w-full h-full object-cover"
           />
           {/* Stronger, consistent darkening so text stays legible over any photo */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/45 to-black/20" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/45 to-black/20" />
+          <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent" />
 
           <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 md:px-10 h-full flex flex-col justify-center">
             <FaCrown className="text-orange-400 text-2xl md:text-3xl mb-4 drop-shadow-lg" />
